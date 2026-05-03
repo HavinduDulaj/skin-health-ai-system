@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+uploads/
+dataset/
+models/*.h5
+models/training_history.png
+models/evaluation_summary.json
+models/training_log.csv

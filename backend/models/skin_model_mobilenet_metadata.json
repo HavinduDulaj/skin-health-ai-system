@@ -1,0 +1,20 @@
+{
+  "class_names": [
+    "acne",
+    "burns",
+    "rashes",
+    "warts"
+  ],
+  "image_size": [
+    224,
+    224
+  ],
+  "batch_size": 8,
+  "seed": 42,
+  "train_counts": {
+    "acne": 70,
+    "burns": 70,
+    "rashes": 70,
+    "warts": 69
+  }
+}

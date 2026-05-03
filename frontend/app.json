@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "DermaSafe AI",
+    "slug": "dermasafe-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logo.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F4FBFF"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#F4FBFF"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/logo.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow DermaSafe to access your photos so you can analyze skin images."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow DermaSafe to use your camera to capture skin images for analysis."
+        }
+      ]
+    ]
+  }
+}
