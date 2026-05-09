@@ -1,0 +1,12 @@
+.venv312/
+.py314-packages/
+__pycache__/
+*.pyc
+node_modules/
+.expo/
+_node_modules_backup/
+_node_modules_incomplete/
+_expo_backup/
+_git_backup/
+*.candidate.joblib
+*.candidate.metrics.json
