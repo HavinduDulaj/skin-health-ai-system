@@ -41,3 +41,10 @@ app-example
 # generated native folders
 /ios
 /android
+dataset/
+saved_model/
+.venv312/
+.py314-packages/
+node_modules/
+.expo/
+__pycache__/
