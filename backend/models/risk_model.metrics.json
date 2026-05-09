@@ -1,0 +1,232 @@
+{
+  "modelType": "sklearn-ensemble-image-classifier",
+  "featureSet": "legacy",
+  "augmentationEnabled": false,
+  "trainedAt": "2026-05-09T09:45:34.594764+00:00",
+  "labels": [
+    "acne",
+    "burns",
+    "rashes",
+    "warts"
+  ],
+  "riskByLabel": {
+    "acne": "Low",
+    "rashes": "Medium",
+    "burns": "High",
+    "warts": "Medium"
+  },
+  "conditionByLabel": {
+    "acne": "Acne",
+    "rashes": "Rashes",
+    "burns": "Burns",
+    "warts": "Warts"
+  },
+  "trainingCounts": {
+    "acne": 160,
+    "burns": 160,
+    "rashes": 160,
+    "warts": 160
+  },
+  "metrics": {
+    "train": {
+      "samples": 640,
+      "conditionAccuracy": 1.0,
+      "riskAccuracy": 1.0,
+      "confusionMatrix": {
+        "acne": {
+          "acne": 160
+        },
+        "burns": {
+          "burns": 160
+        },
+        "rashes": {
+          "rashes": 160
+        },
+        "warts": {
+          "warts": 160
+        }
+      },
+      "classificationReport": {
+        "acne": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 160.0
+        },
+        "burns": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 160.0
+        },
+        "rashes": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 160.0
+        },
+        "warts": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 160.0
+        },
+        "accuracy": 1.0,
+        "macro avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 640.0
+        },
+        "weighted avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 640.0
+        }
+      },
+      "name": "train"
+    },
+    "val": {
+      "samples": 80,
+      "conditionAccuracy": 0.5625,
+      "riskAccuracy": 0.65,
+      "confusionMatrix": {
+        "acne": {
+          "acne": 11,
+          "burns": 5,
+          "rashes": 3,
+          "warts": 1
+        },
+        "burns": {
+          "acne": 2,
+          "burns": 16,
+          "warts": 2
+        },
+        "rashes": {
+          "acne": 5,
+          "burns": 5,
+          "rashes": 6,
+          "warts": 4
+        },
+        "warts": {
+          "acne": 4,
+          "burns": 1,
+          "rashes": 3,
+          "warts": 12
+        }
+      },
+      "classificationReport": {
+        "acne": {
+          "precision": 0.5,
+          "recall": 0.55,
+          "f1-score": 0.5238095238095238,
+          "support": 20.0
+        },
+        "burns": {
+          "precision": 0.5925925925925926,
+          "recall": 0.8,
+          "f1-score": 0.6808510638297872,
+          "support": 20.0
+        },
+        "rashes": {
+          "precision": 0.5,
+          "recall": 0.3,
+          "f1-score": 0.375,
+          "support": 20.0
+        },
+        "warts": {
+          "precision": 0.631578947368421,
+          "recall": 0.6,
+          "f1-score": 0.6153846153846154,
+          "support": 20.0
+        },
+        "accuracy": 0.5625,
+        "macro avg": {
+          "precision": 0.5560428849902534,
+          "recall": 0.5625,
+          "f1-score": 0.5487613007559816,
+          "support": 80.0
+        },
+        "weighted avg": {
+          "precision": 0.5560428849902534,
+          "recall": 0.5625,
+          "f1-score": 0.5487613007559816,
+          "support": 80.0
+        }
+      },
+      "name": "val"
+    },
+    "test": {
+      "samples": 80,
+      "conditionAccuracy": 0.625,
+      "riskAccuracy": 0.6875,
+      "confusionMatrix": {
+        "acne": {
+          "acne": 12,
+          "burns": 2,
+          "rashes": 6
+        },
+        "burns": {
+          "acne": 4,
+          "burns": 12,
+          "rashes": 1,
+          "warts": 3
+        },
+        "rashes": {
+          "acne": 4,
+          "burns": 3,
+          "rashes": 11,
+          "warts": 2
+        },
+        "warts": {
+          "acne": 1,
+          "burns": 1,
+          "rashes": 3,
+          "warts": 15
+        }
+      },
+      "classificationReport": {
+        "acne": {
+          "precision": 0.5714285714285714,
+          "recall": 0.6,
+          "f1-score": 0.5853658536585366,
+          "support": 20.0
+        },
+        "burns": {
+          "precision": 0.6666666666666666,
+          "recall": 0.6,
+          "f1-score": 0.631578947368421,
+          "support": 20.0
+        },
+        "rashes": {
+          "precision": 0.5238095238095238,
+          "recall": 0.55,
+          "f1-score": 0.5365853658536586,
+          "support": 20.0
+        },
+        "warts": {
+          "precision": 0.75,
+          "recall": 0.75,
+          "f1-score": 0.75,
+          "support": 20.0
+        },
+        "accuracy": 0.625,
+        "macro avg": {
+          "precision": 0.6279761904761905,
+          "recall": 0.625,
+          "f1-score": 0.625882541720154,
+          "support": 80.0
+        },
+        "weighted avg": {
+          "precision": 0.6279761904761905,
+          "recall": 0.625,
+          "f1-score": 0.6258825417201541,
+          "support": 80.0
+        }
+      },
+      "name": "test"
+    }
+  },
+  "skippedImages": []
+}

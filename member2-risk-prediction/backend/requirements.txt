@@ -1,3 +1,2 @@
-fastapi
-uvicorn
-pydantic
+-r ../../backend/requirements.txt
+
