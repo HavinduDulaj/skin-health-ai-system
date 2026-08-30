@@ -9,7 +9,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Body, Eyebrow, Fine, PrimaryButton, Rule, Screen, Title } from "../components/ui";
+import { Body, Fine, PrimaryButton, Screen, Title } from "../components/ui";
 import { useApp } from "../context/AppContext";
 import { colors, fonts, radius, spacing } from "../lib/theme";
 
@@ -21,10 +21,7 @@ export default function EnterScreen() {
 
   async function onContinue() {
     if (!accepted) {
-      Alert.alert(
-        "Disclaimer required",
-        "Accept the non-diagnostic disclaimer to continue."
-      );
+      Alert.alert("Almost there", "Please confirm you understand this is not a diagnosis.");
       return;
     }
     setBusy(true);
@@ -39,18 +36,14 @@ export default function EnterScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Eyebrow>Session · on this device</Eyebrow>
-        <Title>Before a photograph is taken.</Title>
+        <Title>Before we begin</Title>
         <Body>
-          Your display name and screening log stay in SQLite on this phone. The
-          server does not keep a record. This is risk awareness — not a diagnosis.
+          Your name and history stay on this phone. Nothing is saved as a medical
+          record on our servers.
         </Body>
 
-        <Rule />
-
         <View style={styles.field}>
-          <Text style={styles.label}>Display name</Text>
-          <Text style={styles.hint}>Optional. Printed on the local report only.</Text>
+          <Text style={styles.label}>Your name (optional)</Text>
           <TextInput
             style={styles.input}
             value={name}
@@ -67,20 +60,20 @@ export default function EnterScreen() {
             value={accepted}
             onValueChange={setAccepted}
             trackColor={{ true: colors.sage, false: colors.wash }}
-            thumbColor={colors.paper2}
+            thumbColor={colors.white}
           />
           <Text style={styles.checkText}>
-            I understand this tool provides risk-awareness guidance only and does
-            not diagnose, treat, or replace a dermatologist.
+            I understand this is risk guidance only — not a diagnosis or a
+            replacement for a doctor.
           </Text>
         </View>
 
         <PrimaryButton
-          label={busy ? "Saving…" : "Continue to capture"}
+          label={busy ? "Saving…" : "Continue"}
           onPress={onContinue}
           disabled={busy}
         />
-        <Fine>R26-IT-058 · screening aid · photographs are not stored as a medical record.</Fine>
+        <Fine>If something looks serious or is getting worse, see a clinician.</Fine>
       </ScrollView>
     </Screen>
   );
@@ -88,26 +81,29 @@ export default function EnterScreen() {
 
 const styles = StyleSheet.create({
   scroll: { gap: spacing.md, paddingBottom: 40 },
-  field: { gap: 6 },
+  field: { gap: 8 },
   label: {
-    color: colors.sage,
+    color: colors.ink,
     fontFamily: fonts.sansSemi,
-    fontSize: 11,
-    letterSpacing: 1.4,
-    textTransform: "uppercase",
+    fontSize: 14,
   },
-  hint: { color: colors.muted, fontFamily: fonts.sans, fontSize: 13 },
   input: {
     borderWidth: 1,
     borderColor: colors.lineStrong,
     borderRadius: radius.tight,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
     backgroundColor: colors.paper2,
     color: colors.ink,
     fontFamily: fonts.sans,
     fontSize: 16,
   },
   checkRow: { flexDirection: "row", gap: spacing.sm, alignItems: "flex-start" },
-  checkText: { flex: 1, color: colors.muted, lineHeight: 22, fontFamily: fonts.sans, fontSize: 14 },
+  checkText: {
+    flex: 1,
+    color: colors.muted,
+    lineHeight: 22,
+    fontFamily: fonts.sans,
+    fontSize: 14,
+  },
 });

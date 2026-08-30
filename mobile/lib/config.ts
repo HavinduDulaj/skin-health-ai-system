@@ -45,7 +45,6 @@ function defaultIngredientsUrl(): string {
 
 export const API_URL = defaultApiUrl();
 export const INGREDIENTS_URL = defaultIngredientsUrl();
-export const APP_NAME = "Derma-Safe";
 export const PROJECT_CODE = "R26-IT-058";
 
 export const LESIONS = ["acne", "burns", "rash", "warts"] as const;
@@ -57,5 +56,3 @@ export const DECISION_LABEL: Record<string, string> = {
   quality_reject: "Quality reject",
   unavailable: "Head not loaded",
 };
-
-export { expoHost };

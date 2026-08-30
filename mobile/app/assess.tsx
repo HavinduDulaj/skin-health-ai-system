@@ -14,7 +14,6 @@ import {
 import {
   Body,
   CaptureRing,
-  Eyebrow,
   Fine,
   GhostButton,
   PrimaryButton,
@@ -37,9 +36,7 @@ export default function AssessScreen() {
   >([]);
 
   useEffect(() => {
-    if (!session?.accepted) {
-      router.replace("/enter");
-    }
+    if (!session?.accepted) router.replace("/enter");
   }, [session]);
 
   useEffect(() => {
@@ -61,12 +58,10 @@ export default function AssessScreen() {
   async function takePhoto() {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("Camera", "Allow camera access or pick from the library.");
+      Alert.alert("Camera", "Allow camera access or choose a photo instead.");
       return;
     }
-    const result = await ImagePicker.launchCameraAsync({
-      quality: 0.92,
-    });
+    const result = await ImagePicker.launchCameraAsync({ quality: 0.92 });
     if (!result.canceled && result.assets[0]) {
       setPhotoUri(result.assets[0].uri);
     }
@@ -76,8 +71,8 @@ export default function AssessScreen() {
     if (!photoUri) return;
     if (!apiOnline) {
       Alert.alert(
-        "API offline",
-        `Cannot reach ${API_URL}.\n\nStart the Python backend: python -m backend\nPhone and PC must share the same Wi‑Fi.`
+        "Can't connect",
+        `Open the API on your computer, then try again.\n\n${API_URL}`
       );
       return;
     }
@@ -88,7 +83,7 @@ export default function AssessScreen() {
       setLastScreening(data, photoUri);
       router.push("/result");
     } catch (err) {
-      Alert.alert("Screening failed", err instanceof Error ? err.message : "Try again.");
+      Alert.alert("Something went wrong", err instanceof Error ? err.message : "Try again.");
     } finally {
       setBusy(false);
     }
@@ -97,11 +92,10 @@ export default function AssessScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Eyebrow>Plate · capture</Eyebrow>
-        <Title>One lesion. Daylight. Fill the ring.</Title>
+        <Title>Add a photo</Title>
         <Body>
-          Hold steady. Do not zoom digitally — move closer. Quality is scored
-          before any risk grade is computed.
+          Use soft daylight. Fill the frame with the skin area. Hold still — blurry
+          photos are rejected.
         </Body>
 
         <View style={styles.plate}>
@@ -109,8 +103,8 @@ export default function AssessScreen() {
             <Image source={{ uri: photoUri }} style={styles.preview} resizeMode="cover" />
           ) : (
             <View style={styles.empty}>
-              <Text style={styles.emptyTitle}>No frame yet</Text>
-              <Text style={styles.emptyHint}>JPEG or PNG · one area filling most of the frame</Text>
+              <Text style={styles.emptyTitle}>No photo yet</Text>
+              <Text style={styles.emptyHint}>Take one or pick from your gallery</Text>
             </View>
           )}
           <CaptureRing />
@@ -118,20 +112,20 @@ export default function AssessScreen() {
 
         <View style={styles.rowBtns}>
           <View style={styles.half}>
-            <PrimaryButton label="Take photograph" onPress={takePhoto} disabled={busy} />
+            <PrimaryButton label="Camera" onPress={takePhoto} disabled={busy} />
           </View>
           <View style={styles.half}>
-            <GhostButton label="From library" onPress={pickFromLibrary} />
+            <GhostButton label="Gallery" onPress={pickFromLibrary} />
           </View>
         </View>
 
-        <Text style={styles.section}>Lesion family — leave blank to identify</Text>
+        <Text style={styles.section}>What are you checking? (optional)</Text>
         <View style={styles.chips}>
           <Pressable
             style={[styles.chip, lesion === "" && styles.chipOn]}
             onPress={() => setLesion("")}
           >
-            <Text style={[styles.chipText, lesion === "" && styles.chipTextOn]}>Identify</Text>
+            <Text style={[styles.chipText, lesion === "" && styles.chipTextOn]}>Auto</Text>
           </Pressable>
           {LESIONS.map((item) => (
             <Pressable
@@ -146,8 +140,7 @@ export default function AssessScreen() {
 
         {samples.length > 0 ? (
           <View style={styles.samples}>
-            <Text style={styles.section}>Held-out test plates</Text>
-            <Fine>Labels stay hidden until after you run them.</Fine>
+            <Text style={styles.section}>Try a sample photo</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {samples.map((item) => (
                 <Pressable
@@ -169,15 +162,12 @@ export default function AssessScreen() {
         {busy ? (
           <View style={styles.busy}>
             <ActivityIndicator color={colors.sage} />
-            <Text style={styles.busyText}>Reading the photograph…</Text>
+            <Text style={styles.busyText}>Checking your photo…</Text>
           </View>
         ) : (
-          <PrimaryButton
-            label="Run screening"
-            onPress={runScreening}
-            disabled={!photoUri}
-          />
+          <PrimaryButton label="See results" onPress={runScreening} disabled={!photoUri} />
         )}
+        <Fine>Results are guidance only.</Fine>
       </ScrollView>
     </Screen>
   );
@@ -188,47 +178,60 @@ const styles = StyleSheet.create({
   plate: {
     height: 300,
     backgroundColor: colors.wash,
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
+    borderRadius: radius.plate,
     overflow: "hidden",
     position: "relative",
   },
   preview: { width: "100%", height: "100%" },
   empty: { flex: 1, alignItems: "center", justifyContent: "center", padding: 20 },
-  emptyTitle: { fontFamily: fonts.serifItalic, color: colors.ink, fontSize: 20 },
-  emptyHint: { fontFamily: fonts.sans, color: colors.muted, fontSize: 13, marginTop: 6, textAlign: "center" },
+  emptyTitle: { fontFamily: fonts.serif, color: colors.ink, fontSize: 20 },
+  emptyHint: {
+    fontFamily: fonts.sans,
+    color: colors.muted,
+    fontSize: 14,
+    marginTop: 6,
+    textAlign: "center",
+  },
   rowBtns: { flexDirection: "row", gap: spacing.sm },
   half: { flex: 1 },
   section: {
-    color: colors.sage,
+    color: colors.ink,
     fontFamily: fonts.sansSemi,
-    fontSize: 11,
-    letterSpacing: 1.3,
-    textTransform: "uppercase",
+    fontSize: 14,
   },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: {
     borderWidth: 1,
     borderColor: colors.lineStrong,
-    borderRadius: radius.tight,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
     backgroundColor: colors.paper2,
   },
-  chipOn: { backgroundColor: colors.ink, borderColor: colors.ink },
-  chipText: { color: colors.ink, fontFamily: fonts.sansMed, textTransform: "capitalize", fontSize: 14 },
-  chipTextOn: { color: colors.paper2 },
+  chipOn: { backgroundColor: colors.sage, borderColor: colors.sage },
+  chipText: {
+    color: colors.ink,
+    fontFamily: fonts.sansMed,
+    textTransform: "capitalize",
+    fontSize: 14,
+  },
+  chipTextOn: { color: colors.white },
   samples: { gap: 8 },
-  sample: { marginRight: 10, width: 92 },
-  sampleImg: { width: 92, height: 92, backgroundColor: colors.wash },
+  sample: { marginRight: 10, width: 88 },
+  sampleImg: {
+    width: 88,
+    height: 88,
+    borderRadius: radius.tight,
+    backgroundColor: colors.wash,
+  },
   sampleLabel: {
     textAlign: "center",
     color: colors.muted,
-    marginTop: 4,
+    marginTop: 6,
     textTransform: "capitalize",
     fontFamily: fonts.sans,
     fontSize: 12,
   },
   busy: { alignItems: "center", gap: 10, paddingVertical: 8 },
-  busyText: { fontFamily: fonts.serifItalic, color: colors.sage, fontSize: 16 },
+  busyText: { fontFamily: fonts.sansMed, color: colors.sage, fontSize: 15 },
 });

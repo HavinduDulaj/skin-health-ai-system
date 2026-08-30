@@ -1,10 +1,10 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
-import { Body, Eyebrow, Screen, Title } from "../components/ui";
+import { Body, Screen, Title } from "../components/ui";
 import { listScreenings } from "../lib/db";
 import type { ScreeningHistoryRow } from "../lib/types";
-import { colors, fonts, spacing } from "../lib/theme";
+import { colors, fonts, radius, spacing } from "../lib/theme";
 
 export default function HistoryScreen() {
   const [rows, setRows] = useState<ScreeningHistoryRow[]>([]);
@@ -27,11 +27,8 @@ export default function HistoryScreen() {
 
   return (
     <Screen style={styles.root}>
-      <Eyebrow>On-device log</Eyebrow>
-      <Title>SQLite, this phone only.</Title>
-      <Body>
-        JSON summaries. Photographs are never written to the log. Pull down to refresh.
-      </Body>
+      <Title>Past results</Title>
+      <Body>Saved on this phone only. Photos are not kept in the log.</Body>
 
       <FlatList
         data={rows}
@@ -41,20 +38,18 @@ export default function HistoryScreen() {
         }
         contentContainerStyle={styles.list}
         ListEmptyComponent={
-          <Text style={styles.empty}>No plates yet. Run a capture to start the log.</Text>
+          <Text style={styles.empty}>No results yet. Run your first screening.</Text>
         }
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <View style={styles.row}>
-            <Text style={styles.n}>{String(rows.length - index).padStart(2, "0")}</Text>
-            <View style={styles.rowBody}>
-              <Text style={styles.rowTitle}>
-                {item.condition || item.lesion || "Screening"} · {item.risk || item.decision}
-              </Text>
-              <Text style={styles.rowMeta}>
-                {new Date(item.created_at).toLocaleString()} · {item.display_name || "Anonymous"}
-              </Text>
-              {item.summary ? <Text style={styles.rowSummary}>{item.summary}</Text> : null}
-            </View>
+            <Text style={styles.rowTitle}>
+              {item.condition || item.lesion || "Screening"} · {item.risk || item.decision}
+            </Text>
+            <Text style={styles.rowMeta}>
+              {new Date(item.created_at).toLocaleString()}
+              {item.display_name ? ` · ${item.display_name}` : ""}
+            </Text>
+            {item.summary ? <Text style={styles.rowSummary}>{item.summary}</Text> : null}
           </View>
         )}
       />
@@ -65,17 +60,20 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   root: { paddingBottom: 0 },
   list: { gap: 10, paddingBottom: 48, paddingTop: 4 },
-  empty: { color: colors.muted, fontFamily: fonts.serifItalic, fontSize: 16, marginTop: spacing.lg },
+  empty: {
+    color: colors.muted,
+    fontFamily: fonts.sans,
+    fontSize: 15,
+    marginTop: spacing.lg,
+  },
   row: {
     backgroundColor: colors.paper2,
     padding: spacing.md,
+    borderRadius: radius.plate,
     borderWidth: 1,
     borderColor: colors.line,
-    flexDirection: "row",
-    gap: 12,
+    gap: 4,
   },
-  n: { fontFamily: fonts.serif, color: colors.sage, fontSize: 14, width: 26 },
-  rowBody: { flex: 1, gap: 4 },
   rowTitle: {
     color: colors.ink,
     fontFamily: fonts.sansSemi,

@@ -205,7 +205,7 @@ async function analyze() {
     toast(err.message || "Could not analyze that photograph.");
   } finally {
     btn.disabled = false;
-    btn.textContent = "Run screening";
+    btn.textContent = "See results";
     document.body.classList.remove("is-busy");
     $("#busy").hidden = true;
   }
@@ -321,9 +321,9 @@ function renderResult(data) {
 
   renderPipeline(data.pipeline || []);
 
-  const meters = $("#meters");
   const triad = $("#triad");
-  meters.innerHTML = "";
+  const note = $("#result-note");
+  if (note) note.innerHTML = "";
   if (triad) {
     triad.hidden = true;
     triad.innerHTML = "";
@@ -345,12 +345,16 @@ function renderResult(data) {
         .join("");
     }
   } else if (decision === "quality_reject") {
-    meters.innerHTML = `<p class="fine">Risk inference was not run. The quality gate rejected this frame first, as specified in the proposal.</p>`;
+    if (note) {
+      note.innerHTML = `<p class="fine">Risk inference was not run. The quality gate rejected this frame first, as specified in the proposal.</p>`;
+    }
   } else {
-    meters.innerHTML = `
+    if (note) {
+      note.innerHTML = `
       <p class="fine">No screening head on disk yet. Quality still ran. To attach Low / Medium / High:</p>
       <p class="fine"><code>python scripts/bootstrap_web_model.py</code> or <code>python train_v4.py --data-root pipeline_output/Skin_Risk_Dataset_V4 --output-dir models</code></p>
     `;
+    }
   }
 
   const steps = $("#result-steps");
@@ -417,8 +421,10 @@ async function loadLab() {
       </article>
     `;
     host.dataset.ready = "1";
-    if (ds.final_images) $("#trust-images").textContent = fmt(ds.final_images);
-    if (ig.leakage && String(ig.leakage).includes("PASSED")) $("#trust-leak").textContent = "passed";
+    if (ds.final_images && $("#trust-images")) $("#trust-images").textContent = fmt(ds.final_images);
+    if (ig.leakage && String(ig.leakage).includes("PASSED") && $("#trust-leak")) {
+      $("#trust-leak").textContent = "passed";
+    }
   } catch {
     host.innerHTML = `<div class="stat"><b>—</b><span>Lab logs not found</span></div>`;
   }
@@ -634,7 +640,9 @@ async function boot() {
       $("#ready-hint").textContent = "Quality screening will still run. Train the head to attach Low / Medium / High.";
     }
     const lab = await fetch(api("/api/v1/lab")).then((r) => r.json());
-    if (lab.dataset?.final_images) $("#trust-images").textContent = fmt(lab.dataset.final_images);
+    if (lab.dataset?.final_images && $("#trust-images")) {
+      $("#trust-images").textContent = fmt(lab.dataset.final_images);
+    }
   } catch {
     status.textContent = window.DERMA_API
       ? `Cannot reach API at ${window.DERMA_API}. Start it with python -m backend.`

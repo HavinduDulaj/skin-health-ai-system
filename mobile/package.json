@@ -9,8 +9,6 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@expo-google-fonts/fraunces": "^0.4.1",
-    "@expo-google-fonts/instrument-sans": "^0.4.2",
     "expo": "~57.0.18",
     "expo-constants": "~57.0.16",
     "expo-file-system": "~57.0.6",

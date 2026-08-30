@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, Text } from "react-native";
-import { Body, Card, Eyebrow, Fine, Screen, Title } from "../components/ui";
+import { Body, Card, Fine, Screen, Title } from "../components/ui";
 import { useApp } from "../context/AppContext";
 import { pct } from "../lib/api";
 import { DECISION_LABEL } from "../lib/config";
@@ -8,19 +8,19 @@ import { colors, fonts, spacing } from "../lib/theme";
 const GRADES = [
   {
     title: "Low risk",
-    copy: "Minor or common appearance. Monitor with ordinary skincare. Photograph again in a few days. See a clinician if it spreads or becomes painful.",
+    copy: "Often mild or common. Keep an eye on it with gentle care. See a clinician if it spreads or hurts.",
   },
   {
     title: "Medium risk",
-    copy: "May need observation. If it persists or worsens, seek dermatological guidance. Medium is also the weakest visual boundary in this dataset — treat a Medium grade with that in mind.",
+    copy: "Worth watching. If it stays or worsens, book dermatology advice. Medium is also the hardest grade to judge from a phone photo.",
   },
   {
     title: "High risk",
-    copy: "Stronger abnormality indicators. Consult a dermatologist. This is not an emergency diagnosis and not a substitute for urgent care if symptoms escalate.",
+    copy: "Stronger signs. Speak with a dermatologist. This is not emergency care — go to urgent care if symptoms escalate.",
   },
   {
-    title: "When the model abstains",
-    copy: "If confidence is low or the top-two grades are close, no winner is forced. Retake the photograph or see a clinician rather than guessing.",
+    title: "When we can't decide",
+    copy: "If the photo is unclear or the grades are too close, we won't force an answer. Retake the photo or see a clinician.",
   },
 ];
 
@@ -30,50 +30,36 @@ export default function GuidanceScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Eyebrow>Risk awareness</Eyebrow>
-        <Title>How to read the grade.</Title>
+        <Title>How to read your result</Title>
         <Body>
-          Low, Medium, and High are screening categories. They are not disease
-          names. This is the guidance layer from the proposal.
+          Low, Medium, and High are screening labels — not disease names.
         </Body>
 
         {lastResult ? (
           <Card>
-            <Text style={styles.sessionKicker}>This session</Text>
+            <Text style={styles.sessionKicker}>Your latest check</Text>
             <Text style={styles.sessionTitle}>
-              {lastResult.condition?.used || lastResult.lesion || "unidentified"}
+              {lastResult.condition?.used || lastResult.lesion || "Skin area"}
               {" · "}
               {lastResult.decision === "grade"
                 ? `${lastResult.risk} risk`
                 : DECISION_LABEL[lastResult.decision] || lastResult.decision}
             </Text>
             <Text style={styles.cardBody}>
-              {lastResult.guidance?.alert || lastResult.guidance?.summary || ""} Confidence{" "}
-              {pct(lastResult.confidence)}.
+              {lastResult.guidance?.alert || lastResult.guidance?.summary || ""}
+              {lastResult.confidence != null ? ` Confidence ${pct(lastResult.confidence)}.` : ""}
             </Text>
           </Card>
         ) : (
-          <Fine>Run a capture to pin this session’s grade here.</Fine>
+          <Fine>Run a screening to see your result summarised here.</Fine>
         )}
 
-        {GRADES.map((item, i) => (
+        {GRADES.map((item) => (
           <Card key={item.title}>
-            <Text style={styles.n}>{String(i + 1).padStart(2, "0")}</Text>
             <Text style={styles.cardTitle}>{item.title}</Text>
             <Text style={styles.cardBody}>{item.copy}</Text>
           </Card>
         ))}
-
-        {lastResult?.guidance?.steps?.length ? (
-          <Card>
-            <Text style={styles.cardTitle}>Recommended steps</Text>
-            {lastResult.guidance.steps.map((step, i) => (
-              <Text key={step} style={styles.step}>
-                {String(i + 1).padStart(2, "0")}  {step}
-              </Text>
-            ))}
-          </Card>
-        ) : null}
 
         {lastResult?.disclaimer ? <Fine>{lastResult.disclaimer}</Fine> : null}
       </ScrollView>
@@ -86,13 +72,14 @@ const styles = StyleSheet.create({
   sessionKicker: {
     color: colors.sage,
     fontFamily: fonts.sansSemi,
-    fontSize: 11,
-    letterSpacing: 1.3,
-    textTransform: "uppercase",
+    fontSize: 12,
   },
-  sessionTitle: { fontFamily: fonts.serifSemi, color: colors.ink, fontSize: 18, textTransform: "capitalize" },
-  n: { fontFamily: fonts.serif, color: colors.sage, fontSize: 13 },
+  sessionTitle: {
+    fontFamily: fonts.serifSemi,
+    color: colors.ink,
+    fontSize: 18,
+    textTransform: "capitalize",
+  },
   cardTitle: { color: colors.ink, fontFamily: fonts.serifSemi, fontSize: 17 },
   cardBody: { color: colors.muted, fontFamily: fonts.sans, lineHeight: 22, fontSize: 14 },
-  step: { color: colors.muted, fontFamily: fonts.sans, lineHeight: 22 },
 });

@@ -1,16 +1,16 @@
 export const colors = {
-  paper: "#efe8dc",
-  paper2: "#f7f2e9",
-  wash: "#e4d6c4",
-  ink: "#1c1814",
-  muted: "#5e564d",
-  line: "rgba(28, 24, 20, 0.12)",
-  lineStrong: "rgba(28, 24, 20, 0.22)",
-  sage: "#2f4a3e",
-  sage2: "#4a6b5a",
-  low: "#3e6b4f",
-  mid: "#b07a2b",
-  high: "#9b4030",
+  paper: "#f5f7f6",
+  paper2: "#ffffff",
+  wash: "#e8efec",
+  ink: "#1a2421",
+  muted: "#5c6b66",
+  line: "rgba(26, 36, 33, 0.08)",
+  lineStrong: "rgba(26, 36, 33, 0.14)",
+  sage: "#2a6b5e",
+  sage2: "#3d8576",
+  low: "#2f7d5b",
+  mid: "#b8860b",
+  high: "#c45c4a",
   white: "#ffffff",
 };
 
@@ -33,8 +33,8 @@ export const fonts = {
 };
 
 export const radius = {
-  plate: 4,
-  tight: 3,
+  plate: 16,
+  tight: 12,
 };
 
 export function gradeColor(grade?: string | null): string {

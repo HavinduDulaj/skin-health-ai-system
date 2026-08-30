@@ -18,17 +18,18 @@ A previous model sat near 57–60% test accuracy, mainly confusing Medium with L
 | **Image processing** | OpenCV / Python (Pillow) |
 
 ```
-mobile/            Expo React Native app (primary UI)
-services/ingredients/   Node.js + Express + JSON knowledge-base
-backend/           Python screening API  (/api/v1, /docs)
-frontend/          legacy browser demo UI
-pipeline/          dataset audit code
-data/raw/          provided V5 photographs (never overwritten)
-data/examples/     labelled preview frames from the V5 notebook
-pipeline_output/   audit reports + cleaned Skin_Risk_Dataset_V4
-models/            V5 checkpoint, model card, test predictions
-notebooks/         Colab pipeline + Skin_Risk_V5 training
-scripts/           linear-probe bootstrap for the UI
+mobile/                 Expo React Native app (primary UI)
+frontend/               Browser demo UI (HTML/CSS/JS)
+backend/                Python screening API (/api/v1, /docs)
+services/ingredients/   Node.js ingredient knowledge-base
+pipeline/               Dataset audit and rebuild code
+data/raw/               Provided V5 photographs (never overwritten)
+data/examples/          Labelled preview frames from the V5 notebook
+pipeline_output/        Audit reports + cleaned Skin_Risk_Dataset_V4
+models/                 V5 checkpoint, model card, test predictions
+notebooks/              Colab pipeline + Skin_Risk_V5 training
+scripts/                Linear-probe bootstrap for the UI
+screenshots/            Thesis / viva screenshots (optional)
 ```
 
 ## Run the mobile app

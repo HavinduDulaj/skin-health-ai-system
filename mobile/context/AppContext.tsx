@@ -14,7 +14,6 @@ import type { AnalyzeResponse, HealthResponse, SessionRecord } from "../lib/type
 interface AppContextValue {
   session: SessionRecord | null;
   startSession: (name: string) => Promise<void>;
-  clearSession: () => void;
   lastResult: AnalyzeResponse | null;
   lastPhotoUri: string | null;
   setLastScreening: (result: AnalyzeResponse, photoUri: string) => void;
@@ -58,10 +57,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSession(record);
   }, []);
 
-  const clearSession = useCallback(() => {
-    setSession(null);
-  }, []);
-
   const setLastScreening = useCallback((result: AnalyzeResponse, photoUri: string) => {
     setLastResult(result);
     setLastPhotoUri(photoUri);
@@ -71,7 +66,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     () => ({
       session,
       startSession,
-      clearSession,
       lastResult,
       lastPhotoUri,
       setLastScreening,
@@ -82,7 +76,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [
       session,
       startSession,
-      clearSession,
       lastResult,
       lastPhotoUri,
       setLastScreening,

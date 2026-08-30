@@ -3,42 +3,40 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#EFE8DC" />
-    <title>Derma-Safe AI — leakage-aware skin risk screening</title>
+    <meta name="theme-color" content="#F5F7F6" />
+    <title>Derma-Safe — skin risk screening</title>
     <meta
       name="description"
-      content="Undergraduate research: photograph a lesion. Derma-Safe AI estimates Low, Medium, or High risk for acne, burns, rash, and warts — and is allowed to abstain. Screening only, not a diagnosis."
+      content="Photograph a skin concern. Derma-Safe estimates Low, Medium, or High risk for acne, burns, rash, and warts. Screening only — not a diagnosis."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,480;0,9..144,600;1,9..144,480&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Instrument+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/app.css" />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%23EFE8DC' width='32' height='32' rx='8'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%232F4A3E' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='16' r='2.2' fill='%239B4030'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%23F5F7F6' width='32' height='32' rx='10'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%232A6B5E' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='16' r='2.4' fill='%232A6B5E'/%3E%3C/svg%3E"
     />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
-    <div class="grain" aria-hidden="true"></div>
 
     <header class="top">
       <a class="mark" href="#/" data-nav>
         <span class="mark-ring" aria-hidden="true"></span>
-        Derma-Safe <em>AI</em>
+        Derma-Safe
       </a>
       <nav class="nav" aria-label="Primary">
-        <a href="#/enter" data-nav>Session</a>
-        <a href="#/assess" data-nav>Capture</a>
+        <a href="#/enter" data-nav>Start</a>
+        <a href="#/assess" data-nav>Photo</a>
         <a href="#/guidance" data-nav>Guidance</a>
         <a href="#/report" data-nav>Report</a>
+        <a href="#/method" data-nav>How it works</a>
+        <a href="#/log" data-nav>History</a>
         <a href="#/lab" data-nav>Lab</a>
-        <a href="#/method" data-nav>Method</a>
-        <a href="#/log" data-nav>Log</a>
-        <a href="/docs" target="_blank" rel="noreferrer" class="nav-api">API</a>
       </nav>
     </header>
 
@@ -46,64 +44,40 @@
       <section class="view view-home" data-view="home">
         <div class="hero">
           <div class="hero-copy">
-            <p class="eyebrow">R26-IT-058 · member 2 · skin health decision support</p>
-            <h1>Risk-level screening<br /><em>without a diagnosis.</em></h1>
+            <p class="eyebrow">Skin risk screening</p>
+            <h1>Check a skin concern<br /><em>in a few steps.</em></h1>
             <p class="lede">
-              Upload a photograph. The system identifies the likely lesion family
-              (acne, burns, rash, or warts), grades <strong>Low</strong>,
-              <strong>Medium</strong>, or <strong>High</strong> risk, and may
-              <strong>abstain</strong> or reject a poor frame. Screening only.
+              Upload a clear photo. We estimate <strong>Low</strong>,
+              <strong>Medium</strong>, or <strong>High</strong> risk for acne,
+              burns, rash, or warts — and may ask you to retake a blurry shot.
             </p>
             <div class="hero-actions">
-              <a class="btn btn-primary" href="#/enter" data-nav>Begin a session</a>
-              <a class="btn btn-ghost" href="#/method" data-nav>Read the method</a>
+              <a class="btn btn-primary" href="#/enter" data-nav>Start screening</a>
+              <a class="btn btn-ghost" href="#/method" data-nav>How it works</a>
             </div>
             <ul class="trust">
-              <li><span id="trust-images">2,647</span> cleaned images</li>
-              <li>Leakage check <em id="trust-leak">passed</em></li>
-              <li>Grad-CAM explanation</li>
+              <li>Quality-checked photos</li>
+              <li>May abstain when unsure</li>
               <li>Not a diagnosis</li>
             </ul>
           </div>
           <aside class="hero-stage" aria-hidden="true">
             <div class="stage-frame">
               <div class="stage-ring"></div>
-              <div class="stage-ring stage-ring-2"></div>
-              <p class="stage-stamp">Plate 00</p>
-              <p class="stage-caption">Fill the ring with the lesion.<br />Daylight. No flash.</p>
+              <p class="stage-caption">Daylight · fill the frame<br />with the skin area</p>
             </div>
-            <p class="stage-note">Designed for a phone camera — not a dermatoscope.</p>
+            <p class="stage-note">Made for a phone camera.</p>
           </aside>
         </div>
-
-        <div class="contrib-row" id="home-contrib">
-          <article class="card">
-            <p class="plate-n">01</p>
-            <h3>The model may abstain</h3>
-            <p class="fine">When the top-two grades are close, the API returns a distribution, not a forced winner. That is the research, not a defect.</p>
-          </article>
-          <article class="card">
-            <p class="plate-n">02</p>
-            <h3>Quality first, then risk</h3>
-            <p class="fine">A weak photograph is rejected before the risk head runs — the proposal’s quality gate, not a cosmetic check.</p>
-          </article>
-          <article class="card">
-            <p class="plate-n">03</p>
-            <h3>Grad-CAM on the grade</h3>
-            <p class="fine">Warmer regions raised the leading Low / Medium / High score. The heatmap explains the risk head. It is not a diagnosis.</p>
-          </article>
-        </div>
-        <p class="ceiling">V5 test accuracy is about 60%. Medium remains weakly separable in consumer photographs. That ceiling is part of the result.</p>
       </section>
 
       <section class="view view-enter" data-view="enter" hidden>
         <article class="essay">
-          <p class="eyebrow">Session</p>
-          <h2>Start a screening session.</h2>
+          <p class="eyebrow">Get started</p>
+          <h2>Before we begin</h2>
           <p class="lede tight">
-            No account is stored on the server. Your name stays in this browser
-            for the session. You must accept that this is risk awareness, not a
-            medical diagnosis.
+            Your name stays in this browser for the session. Please confirm this
+            is risk guidance only — not a medical diagnosis.
           </p>
           <form class="session-form" id="session-form">
             <label>
@@ -114,7 +88,7 @@
               <input id="session-accept" type="checkbox" required />
               I understand this tool provides risk-awareness guidance only and does not diagnose, treat, or replace a dermatologist.
             </label>
-            <button class="btn btn-primary" type="submit">Continue to image upload</button>
+            <button class="btn btn-primary" type="submit">Continue</button>
           </form>
         </article>
       </section>
@@ -122,16 +96,16 @@
       <section class="view view-assess" data-view="assess" hidden>
         <div class="studio">
           <div class="studio-copy">
-            <p class="eyebrow">Image upload</p>
-            <h2>Photograph the lesion.</h2>
+            <p class="eyebrow">Photo</p>
+            <h2>Add a clear photo</h2>
             <p class="lede tight">
-              One area, filling most of the frame. Natural light from the side.
-              The system identifies the likely family; confirm it if you know.
+              Soft daylight. Fill the frame with the skin area. Hold still —
+              blurry photos are rejected.
             </p>
             <ol class="tips">
-              <li>Hold steady — motion looks like blur to the model.</li>
-              <li>Do not zoom digitally. Move closer instead.</li>
-              <li>Quality is checked before any risk grade is computed.</li>
+              <li>Hold steady.</li>
+              <li>Move closer instead of zooming.</li>
+              <li>Quality is checked before any risk grade.</li>
             </ol>
           </div>
 
@@ -166,7 +140,7 @@
           </fieldset>
           <div class="panel-run">
             <p class="fine" id="ready-hint">Choose a photograph to continue.</p>
-            <button class="btn btn-primary" type="button" id="btn-analyze" disabled>Run screening</button>
+              <button class="btn btn-primary" type="button" id="btn-analyze" disabled>See results</button>
           </div>
         </div>
 
@@ -191,7 +165,7 @@
           <article class="card meter-card">
             <h3>Grade probabilities</h3>
             <div class="triad" id="triad" hidden></div>
-            <div class="meters" id="meters"></div>
+            <div class="result-note" id="result-note"></div>
             <p class="fine" id="result-uncertain"></p>
           </article>
           <article class="card">
@@ -368,7 +342,7 @@
       </div>
     </dialog>
 
-    <div class="busy" id="busy" hidden>Reading the photograph…</div>
+    <div class="busy" id="busy" hidden>Checking your photo…</div>
     <div class="toast" id="toast" hidden role="status"></div>
     <script src="/config.js"></script>
     <script src="/app.js"></script>

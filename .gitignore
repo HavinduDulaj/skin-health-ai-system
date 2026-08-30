@@ -21,6 +21,7 @@ Thumbs.db
 node_modules/
 _node_modules_backup/
 _node_modules_incomplete/
+dataset/
 .expo/
 mobile/.expo/
 mobile/dist/

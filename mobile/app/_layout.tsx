@@ -38,14 +38,14 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="index" options={{ title: "Derma-Safe" }} />
-        <Stack.Screen name="enter" options={{ title: "Session" }} />
-        <Stack.Screen name="assess" options={{ title: "Capture" }} />
-        <Stack.Screen name="result" options={{ title: "Result" }} />
+        <Stack.Screen name="enter" options={{ title: "Get started" }} />
+        <Stack.Screen name="assess" options={{ title: "Photo" }} />
+        <Stack.Screen name="result" options={{ title: "Results" }} />
         <Stack.Screen name="guidance" options={{ title: "Guidance" }} />
         <Stack.Screen name="report" options={{ title: "Report" }} />
-        <Stack.Screen name="lab" options={{ title: "Laboratory" }} />
-        <Stack.Screen name="method" options={{ title: "Method" }} />
-        <Stack.Screen name="history" options={{ title: "Log" }} />
+        <Stack.Screen name="lab" options={{ title: "Lab" }} />
+        <Stack.Screen name="method" options={{ title: "How it works" }} />
+        <Stack.Screen name="history" options={{ title: "History" }} />
       </Stack>
     </AppProvider>
   );
