@@ -1,5 +1,13 @@
+import { router } from "expo-router";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Body, Card, Fine, Screen, Title } from "../components/ui";
+import {
+  Body,
+  Eyebrow,
+  Fine,
+  GhostButton,
+  Screen,
+  Title,
+} from "../components/ui";
 import { useApp } from "../context/AppContext";
 import { pct } from "../lib/api";
 import { DECISION_LABEL } from "../lib/config";
@@ -11,8 +19,13 @@ export default function ReportScreen() {
   if (!lastResult) {
     return (
       <Screen>
+        <Eyebrow>Skin health advisory report</Eyebrow>
         <Title>No report yet</Title>
-        <Body>Complete a screening to generate a short summary.</Body>
+        <Body>
+          Complete an assessment to generate the structured output from the
+          proposal (condition, risk, confidence, guidance).
+        </Body>
+        <GhostButton label="New assessment" onPress={() => router.push("/assess")} />
       </Screen>
     );
   }
@@ -35,6 +48,7 @@ export default function ReportScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <Eyebrow>Skin health advisory report</Eyebrow>
         <Title>
           {cond} · {grade}
         </Title>
@@ -44,16 +58,29 @@ export default function ReportScreen() {
           <Image source={{ uri: lastPhotoUri }} style={styles.photo} resizeMode="cover" />
         ) : null}
 
-        <Card>
-          {rows.map(([label, value], i) => (
-            <View key={label} style={[styles.row, i === rows.length - 1 && styles.rowLast]}>
+        <View style={styles.dl}>
+          {rows.map(([label, value]) => (
+            <View key={label} style={styles.row}>
               <Text style={styles.rowLabel}>{label}</Text>
               <Text style={styles.rowValue}>{value}</Text>
             </View>
           ))}
-        </Card>
+        </View>
+
+        {lastResult.risk_module?.length
+          ? lastResult.risk_module.map((item, i) => (
+              <View key={item.title} style={styles.arch}>
+                <Text style={styles.archN}>{String(i + 1).padStart(2, "0")}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.archTitle}>{item.title}</Text>
+                  <Fine>{item.detail || item.status}</Fine>
+                </View>
+              </View>
+            ))
+          : null}
 
         <Fine>{lastResult.disclaimer}</Fine>
+        <GhostButton label="New assessment" onPress={() => router.push("/assess")} />
       </ScrollView>
     </Screen>
   );
@@ -63,19 +90,36 @@ const styles = StyleSheet.create({
   scroll: { gap: spacing.md, paddingBottom: 48 },
   photo: {
     width: "100%",
+    maxWidth: 280,
     height: 220,
     backgroundColor: colors.wash,
-    borderRadius: radius.plate,
+    borderRadius: 14,
   },
+  dl: { gap: 10 },
   row: {
     flexDirection: "row",
     gap: 12,
-    paddingBottom: 12,
-    marginBottom: 12,
+    paddingBottom: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.line,
   },
-  rowLast: { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 },
   rowLabel: { width: 100, color: colors.muted, fontFamily: fonts.sans, fontSize: 13 },
-  rowValue: { flex: 1, color: colors.ink, fontFamily: fonts.sansMed, fontSize: 14 },
+  rowValue: {
+    flex: 1,
+    color: colors.ink,
+    fontFamily: fonts.sansMed,
+    fontSize: 14,
+    textTransform: "capitalize",
+  },
+  arch: {
+    flexDirection: "row",
+    gap: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: radius.plate,
+    backgroundColor: colors.paper2,
+  },
+  archN: { fontFamily: fonts.serif, fontSize: 16, color: colors.sage, width: 28 },
+  archTitle: { fontFamily: fonts.sansSemi, color: colors.ink, fontSize: 15 },
 });

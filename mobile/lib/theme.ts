@@ -33,8 +33,8 @@ export const fonts = {
 };
 
 export const radius = {
-  plate: 16,
-  tight: 12,
+  plate: 14,
+  tight: 14,
 };
 
 export function gradeColor(grade?: string | null): string {

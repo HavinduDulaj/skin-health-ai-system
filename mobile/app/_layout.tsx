@@ -2,8 +2,23 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
+import { BrandTitle } from "../components/ui";
 import { AppProvider } from "../context/AppContext";
 import { colors, fonts } from "../lib/theme";
+
+const header = {
+  headerStyle: { backgroundColor: colors.paper },
+  headerTintColor: colors.ink,
+  headerShadowVisible: false,
+  headerTitleStyle: {
+    fontFamily: fonts.serifSemi,
+    fontSize: 17,
+    color: colors.ink,
+  },
+  headerBackTitle: "Back",
+  headerBackTitleStyle: { fontFamily: fonts.sansMed, fontSize: 15 },
+  contentStyle: { backgroundColor: colors.paper },
+} as const;
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -22,22 +37,14 @@ export default function RootLayout() {
   return (
     <AppProvider>
       <StatusBar style="dark" />
-      <Stack
-        screenOptions={{
-          headerStyle: { backgroundColor: colors.paper },
-          headerTintColor: colors.ink,
-          headerShadowVisible: false,
-          headerTitleStyle: {
-            fontFamily: fonts.serifSemi,
-            fontSize: 17,
-            color: colors.ink,
-          },
-          headerBackTitle: "Back",
-          headerBackTitleStyle: { fontFamily: fonts.sansMed, fontSize: 15 },
-          contentStyle: { backgroundColor: colors.paper },
-        }}
-      >
-        <Stack.Screen name="index" options={{ title: "Derma-Safe" }} />
+      <Stack screenOptions={header}>
+        <Stack.Screen
+          name="index"
+          options={{
+            headerTitle: () => <BrandTitle />,
+            headerTitleAlign: "left",
+          }}
+        />
         <Stack.Screen name="enter" options={{ title: "Get started" }} />
         <Stack.Screen name="assess" options={{ title: "Photo" }} />
         <Stack.Screen name="result" options={{ title: "Results" }} />

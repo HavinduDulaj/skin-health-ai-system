@@ -9,7 +9,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Body, Fine, PrimaryButton, Screen, Title } from "../components/ui";
+import { Body, Eyebrow, Fine, PrimaryButton, Screen, Title } from "../components/ui";
 import { useApp } from "../context/AppContext";
 import { colors, fonts, radius, spacing } from "../lib/theme";
 
@@ -36,14 +36,17 @@ export default function EnterScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <Eyebrow>Get started</Eyebrow>
         <Title>Before we begin</Title>
         <Body>
-          Your name and history stay on this phone. Nothing is saved as a medical
-          record on our servers.
+          Your name stays on this phone for the session. Please confirm this is
+          risk guidance only — not a medical diagnosis.
         </Body>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Your name (optional)</Text>
+          <Text style={styles.label}>
+            Display name <Text style={styles.optional}>(optional)</Text>
+          </Text>
           <TextInput
             style={styles.input}
             value={name}
@@ -63,8 +66,8 @@ export default function EnterScreen() {
             thumbColor={colors.white}
           />
           <Text style={styles.checkText}>
-            I understand this is risk guidance only — not a diagnosis or a
-            replacement for a doctor.
+            I understand this tool provides risk-awareness guidance only and does
+            not diagnose, treat, or replace a dermatologist.
           </Text>
         </View>
 
@@ -83,10 +86,11 @@ const styles = StyleSheet.create({
   scroll: { gap: spacing.md, paddingBottom: 40 },
   field: { gap: 8 },
   label: {
-    color: colors.ink,
-    fontFamily: fonts.sansSemi,
+    color: colors.muted,
+    fontFamily: fonts.sans,
     fontSize: 14,
   },
+  optional: { color: colors.muted, fontFamily: fonts.sans, fontSize: 13 },
   input: {
     borderWidth: 1,
     borderColor: colors.lineStrong,
