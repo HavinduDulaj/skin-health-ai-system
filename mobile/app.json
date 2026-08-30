@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "DermaSafe AI",
+    "slug": "dermasafe-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "dermasafe",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Allow DermaSafe AI to photograph lesions for screening.",
+          "photosPermission": "Allow DermaSafe AI to pick lesion photographs from your gallery."
+        }
+      ],
+      "expo-sqlite"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dermasafe.ai"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#EFE8DC",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.dermasafe.ai",
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
