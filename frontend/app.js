@@ -68,6 +68,7 @@ function route() {
   if (name === "assess") loadGallery();
   if (name === "guidance") renderGuidance();
   if (name === "report") renderReport();
+  if (name === "log") renderLog();
   window.scrollTo(0, 0);
 }
 
@@ -197,6 +198,7 @@ async function analyze() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || "Analysis failed");
     state.last = data;
+    rememberRun(data);
     renderResult(data);
     location.hash = "#/result";
   } catch (err) {
@@ -320,16 +322,27 @@ function renderResult(data) {
   renderPipeline(data.pipeline || []);
 
   const meters = $("#meters");
+  const triad = $("#triad");
   meters.innerHTML = "";
+  if (triad) {
+    triad.hidden = true;
+    triad.innerHTML = "";
+  }
   if (data.model?.loaded && decision !== "quality_reject" && decision !== "unavailable") {
-    for (const name of ["Low", "Medium", "High"]) {
-      const value = data.probabilities?.[name];
-      const row = document.createElement("div");
-      row.innerHTML = `
-        <div class="meter-label"><span>${name}</span><span>${pct(value)}</span></div>
-        <div class="track ${name.toLowerCase()}"><span style="width:${value ? value * 100 : 0}%"></span></div>
-      `;
-      meters.appendChild(row);
+    if (triad) {
+      triad.hidden = false;
+      triad.innerHTML = ["Low", "Medium", "High"]
+        .map((name) => {
+          const value = data.probabilities?.[name];
+          const lead = decision === "grade" && data.risk === name ? " is-lead" : "";
+          return `<div class="triad-col${lead}" data-grade="${name}">
+            <span class="triad-pct">${value == null ? "—" : Math.round(value * 100)}</span>
+            <span class="triad-unit">%</span>
+            <span class="triad-name">${name}</span>
+            <div class="track ${name.toLowerCase()}"><span style="width:${value ? value * 100 : 0}%"></span></div>
+          </div>`;
+        })
+        .join("");
     }
   } else if (decision === "quality_reject") {
     meters.innerHTML = `<p class="fine">Risk inference was not run. The quality gate rejected this frame first, as specified in the proposal.</p>`;
@@ -516,6 +529,51 @@ function renderReport() {
   } else {
     wrap.hidden = true;
   }
+}
+
+function rememberRun(data) {
+  try {
+    const log = JSON.parse(sessionStorage.getItem("dermaLog") || "[]");
+    log.unshift({
+      at: Date.now(),
+      decision: data.decision,
+      risk: data.risk || "",
+      condition: data.condition?.used || data.lesion || "",
+      confidence: data.confidence ?? null,
+    });
+    sessionStorage.setItem("dermaLog", JSON.stringify(log.slice(0, 24)));
+  } catch {
+    /* ignore quota */
+  }
+}
+
+function renderLog() {
+  const host = $("#session-log");
+  if (!host) return;
+  let log = [];
+  try {
+    log = JSON.parse(sessionStorage.getItem("dermaLog") || "[]");
+  } catch {
+    log = [];
+  }
+  if (!log.length) {
+    host.innerHTML = `<p class="fine">No plates yet. Run a capture to start the log.</p>`;
+    return;
+  }
+  host.innerHTML = log
+    .map((item, i) => {
+      const grade =
+        item.decision === "grade" ? `${item.risk} risk` : DECISION_LABEL[item.decision] || item.decision;
+      const when = new Date(item.at).toLocaleString();
+      return `<article class="log-row">
+        <span class="log-n">${String(log.length - i).padStart(2, "0")}</span>
+        <div>
+          <p class="log-title">${item.condition || "Screening"} · ${grade}</p>
+          <p class="log-meta">${when}${item.confidence != null ? ` · ${pct(item.confidence)}` : ""}</p>
+        </div>
+      </article>`;
+    })
+    .join("");
 }
 
 function fmt(n) {

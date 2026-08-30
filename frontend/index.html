@@ -32,11 +32,12 @@
       </a>
       <nav class="nav" aria-label="Primary">
         <a href="#/enter" data-nav>Session</a>
-        <a href="#/assess" data-nav>Upload</a>
+        <a href="#/assess" data-nav>Capture</a>
         <a href="#/guidance" data-nav>Guidance</a>
         <a href="#/report" data-nav>Report</a>
         <a href="#/lab" data-nav>Lab</a>
         <a href="#/method" data-nav>Method</a>
+        <a href="#/log" data-nav>Log</a>
         <a href="/docs" target="_blank" rel="noreferrer" class="nav-api">API</a>
       </nav>
     </header>
@@ -45,7 +46,7 @@
       <section class="view view-home" data-view="home">
         <div class="hero">
           <div class="hero-copy">
-            <p class="eyebrow">R26-IT-058 · skin health decision support</p>
+            <p class="eyebrow">R26-IT-058 · member 2 · skin health decision support</p>
             <h1>Risk-level screening<br /><em>without a diagnosis.</em></h1>
             <p class="lede">
               Upload a photograph. The system identifies the likely lesion family
@@ -54,7 +55,7 @@
               <strong>abstain</strong> or reject a poor frame. Screening only.
             </p>
             <div class="hero-actions">
-              <a class="btn btn-primary" href="#/enter" data-nav>Start a session</a>
+              <a class="btn btn-primary" href="#/enter" data-nav>Begin a session</a>
               <a class="btn btn-ghost" href="#/method" data-nav>Read the method</a>
             </div>
             <ul class="trust">
@@ -68,6 +69,7 @@
             <div class="stage-frame">
               <div class="stage-ring"></div>
               <div class="stage-ring stage-ring-2"></div>
+              <p class="stage-stamp">Plate 00</p>
               <p class="stage-caption">Fill the ring with the lesion.<br />Daylight. No flash.</p>
             </div>
             <p class="stage-note">Designed for a phone camera — not a dermatoscope.</p>
@@ -76,18 +78,22 @@
 
         <div class="contrib-row" id="home-contrib">
           <article class="card">
+            <p class="plate-n">01</p>
             <h3>The model may abstain</h3>
             <p class="fine">When the top-two grades are close, the API returns a distribution, not a forced winner. That is the research, not a defect.</p>
           </article>
           <article class="card">
+            <p class="plate-n">02</p>
             <h3>Quality first, then risk</h3>
             <p class="fine">A weak photograph is rejected before the risk head runs — the proposal’s quality gate, not a cosmetic check.</p>
           </article>
           <article class="card">
+            <p class="plate-n">03</p>
             <h3>Grad-CAM on the grade</h3>
             <p class="fine">Warmer regions raised the leading Low / Medium / High score. The heatmap explains the risk head. It is not a diagnosis.</p>
           </article>
         </div>
+        <p class="ceiling">V5 test accuracy is about 60%. Medium remains weakly separable in consumer photographs. That ceiling is part of the result.</p>
       </section>
 
       <section class="view view-enter" data-view="enter" hidden>
@@ -184,6 +190,7 @@
         <div class="result-grid">
           <article class="card meter-card">
             <h3>Grade probabilities</h3>
+            <div class="triad" id="triad" hidden></div>
             <div class="meters" id="meters"></div>
             <p class="fine" id="result-uncertain"></p>
           </article>
@@ -292,6 +299,18 @@
         </div>
         <div class="stat-row" id="lab-stats"></div>
         <div class="lab-grid" id="lab-grid"></div>
+      </section>
+
+      <section class="view view-log" data-view="log" hidden>
+        <div class="page-intro">
+          <p class="eyebrow">Session log</p>
+          <h2>This browser only.</h2>
+          <p class="lede">
+            Summaries from runs in this tab. Photographs are not written to the
+            log. The phone app keeps the same record in SQLite.
+          </p>
+        </div>
+        <div class="log-list" id="session-log"></div>
       </section>
 
       <section class="view view-method" data-view="method" hidden>

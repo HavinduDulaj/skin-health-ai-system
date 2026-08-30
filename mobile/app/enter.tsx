@@ -9,9 +9,9 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Body, Eyebrow, PrimaryButton, Screen, Title } from "../components/ui";
+import { Body, Eyebrow, Fine, PrimaryButton, Rule, Screen, Title } from "../components/ui";
 import { useApp } from "../context/AppContext";
-import { colors, spacing } from "../lib/theme";
+import { colors, fonts, radius, spacing } from "../lib/theme";
 
 export default function EnterScreen() {
   const { startSession } = useApp();
@@ -23,7 +23,7 @@ export default function EnterScreen() {
     if (!accepted) {
       Alert.alert(
         "Disclaimer required",
-        "Please accept the non-diagnostic disclaimer to continue."
+        "Accept the non-diagnostic disclaimer to continue."
       );
       return;
     }
@@ -38,56 +38,76 @@ export default function EnterScreen() {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <Eyebrow>Session</Eyebrow>
-        <Title>Start a screening session.</Title>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <Eyebrow>Session · on this device</Eyebrow>
+        <Title>Before a photograph is taken.</Title>
         <Body>
-          Your display name and history stay on this device in SQLite. Nothing is stored on
-          the server. This tool provides risk awareness only — not a medical diagnosis.
+          Your display name and screening log stay in SQLite on this phone. The
+          server does not keep a record. This is risk awareness — not a diagnosis.
         </Body>
 
+        <Rule />
+
         <View style={styles.field}>
-          <Text style={styles.label}>Display name (optional)</Text>
+          <Text style={styles.label}>Display name</Text>
+          <Text style={styles.hint}>Optional. Printed on the local report only.</Text>
           <TextInput
             style={styles.input}
             value={name}
             onChangeText={setName}
             placeholder="e.g. Avishka"
+            placeholderTextColor={colors.muted}
             maxLength={40}
             autoCapitalize="words"
           />
         </View>
 
         <View style={styles.checkRow}>
-          <Switch value={accepted} onValueChange={setAccepted} trackColor={{ true: colors.sage }} />
+          <Switch
+            value={accepted}
+            onValueChange={setAccepted}
+            trackColor={{ true: colors.sage, false: colors.wash }}
+            thumbColor={colors.paper2}
+          />
           <Text style={styles.checkText}>
-            I understand this tool provides risk-awareness guidance only and does not
-            diagnose, treat, or replace a dermatologist.
+            I understand this tool provides risk-awareness guidance only and does
+            not diagnose, treat, or replace a dermatologist.
           </Text>
         </View>
 
         <PrimaryButton
-          label={busy ? "Saving…" : "Continue to screening"}
+          label={busy ? "Saving…" : "Continue to capture"}
           onPress={onContinue}
           disabled={busy}
         />
+        <Fine>R26-IT-058 · screening aid · photographs are not stored as a medical record.</Fine>
       </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { gap: spacing.md },
-  field: { gap: spacing.xs },
-  label: { color: colors.ink, fontWeight: "600" },
+  scroll: { gap: spacing.md, paddingBottom: 40 },
+  field: { gap: 6 },
+  label: {
+    color: colors.sage,
+    fontFamily: fonts.sansSemi,
+    fontSize: 11,
+    letterSpacing: 1.4,
+    textTransform: "uppercase",
+  },
+  hint: { color: colors.muted, fontFamily: fonts.sans, fontSize: 13 },
   input: {
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 12,
-    padding: 14,
+    borderColor: colors.lineStrong,
+    borderRadius: radius.tight,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     backgroundColor: colors.paper2,
     color: colors.ink,
+    fontFamily: fonts.sans,
+    fontSize: 16,
   },
   checkRow: { flexDirection: "row", gap: spacing.sm, alignItems: "flex-start" },
-  checkText: { flex: 1, color: colors.muted, lineHeight: 22 },
+  checkText: { flex: 1, color: colors.muted, lineHeight: 22, fontFamily: fonts.sans, fontSize: 14 },
 });

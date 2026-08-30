@@ -105,6 +105,7 @@ class Explainability(BaseModel):
     class_name: Optional[str] = None
     lesion_context: Optional[str] = None
     backbone_layers_copied: Optional[int] = None
+    backend: Optional[str] = None
     overlay_jpeg: Optional[str] = None
     heatmap_jpeg: Optional[str] = None
     note: str = ""

@@ -1,9 +1,24 @@
+import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { View } from "react-native";
 import { AppProvider } from "../context/AppContext";
-import { colors } from "../lib/theme";
+import { colors, fonts } from "../lib/theme";
 
 export default function RootLayout() {
+  const [loaded] = useFonts({
+    Fraunces_400Regular: require("../assets/fonts/Fraunces_400Regular.ttf"),
+    Fraunces_400Regular_Italic: require("../assets/fonts/Fraunces_400Regular_Italic.ttf"),
+    Fraunces_600SemiBold: require("../assets/fonts/Fraunces_600SemiBold.ttf"),
+    InstrumentSans_400Regular: require("../assets/fonts/InstrumentSans_400Regular.ttf"),
+    InstrumentSans_500Medium: require("../assets/fonts/InstrumentSans_500Medium.ttf"),
+    InstrumentSans_600SemiBold: require("../assets/fonts/InstrumentSans_600SemiBold.ttf"),
+  });
+
+  if (!loaded) {
+    return <View style={{ flex: 1, backgroundColor: colors.paper }} />;
+  }
+
   return (
     <AppProvider>
       <StatusBar style="dark" />
@@ -11,19 +26,26 @@ export default function RootLayout() {
         screenOptions={{
           headerStyle: { backgroundColor: colors.paper },
           headerTintColor: colors.ink,
-          headerTitleStyle: { fontWeight: "700" },
+          headerShadowVisible: false,
+          headerTitleStyle: {
+            fontFamily: fonts.serifSemi,
+            fontSize: 17,
+            color: colors.ink,
+          },
+          headerBackTitle: "Back",
+          headerBackTitleStyle: { fontFamily: fonts.sansMed, fontSize: 15 },
           contentStyle: { backgroundColor: colors.paper },
         }}
       >
-        <Stack.Screen name="index" options={{ title: "DermaSafe AI" }} />
+        <Stack.Screen name="index" options={{ title: "Derma-Safe" }} />
         <Stack.Screen name="enter" options={{ title: "Session" }} />
-        <Stack.Screen name="assess" options={{ title: "Screening" }} />
+        <Stack.Screen name="assess" options={{ title: "Capture" }} />
         <Stack.Screen name="result" options={{ title: "Result" }} />
         <Stack.Screen name="guidance" options={{ title: "Guidance" }} />
         <Stack.Screen name="report" options={{ title: "Report" }} />
-        <Stack.Screen name="lab" options={{ title: "Lab" }} />
+        <Stack.Screen name="lab" options={{ title: "Laboratory" }} />
         <Stack.Screen name="method" options={{ title: "Method" }} />
-        <Stack.Screen name="history" options={{ title: "History" }} />
+        <Stack.Screen name="history" options={{ title: "Log" }} />
       </Stack>
     </AppProvider>
   );
