@@ -18,6 +18,7 @@ export default function Card({ children, style }: CardProps) {
         styles.card,
         {
           backgroundColor: palette.card,
+          borderColor: palette.border,
           shadowColor: palette.shadow,
         },
         style,
@@ -31,6 +32,7 @@ export default function Card({ children, style }: CardProps) {
 const styles = StyleSheet.create({
   card: {
     borderRadius: radii.xl,
+    borderWidth: 1,
     padding: 18,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 1,

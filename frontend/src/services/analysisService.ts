@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import { NativeModules, Platform } from 'react-native';
 
-import type { DetectedCondition, ScanResult } from '../types';
+import type { ClinicalMetadata, DetectedCondition, ScanResult } from '../types';
 
 type UploadableImage =
   | string
@@ -12,8 +12,8 @@ type UploadableImage =
       mimeType?: string | null;
     };
 
-const FALLBACK_HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
-const MANUAL_MOBILE_HOST = '10.42.223.53';
+const MOBILE_LAN_FALLBACK_HOST = '10.119.173.206';
+const FALLBACK_HOST = Platform.OS === 'android' ? MOBILE_LAN_FALLBACK_HOST : 'localhost';
 
 function getHostFromScriptUrl() {
   const scriptUrl = NativeModules.SourceCode?.scriptURL;
@@ -37,11 +37,31 @@ function getHostFromExpoConfig() {
   ];
 
   const hostValue = candidates.find(Boolean);
-  return hostValue ? hostValue.split(':')[0] : null;
+  const host = hostValue ? hostValue.split(':')[0] : null;
+
+  if (!host || host === 'localhost' || host === '127.0.0.1') {
+    return null;
+  }
+
+  return host;
 }
 
-const API_HOST = MANUAL_MOBILE_HOST || getHostFromExpoConfig() || getHostFromScriptUrl() || FALLBACK_HOST;
+function getHostFromBrowserLocation() {
+  if (Platform.OS !== 'web') {
+    return null;
+  }
+
+  const location = globalThis.location;
+  return location?.hostname || null;
+}
+
+const API_HOST =
+  getHostFromBrowserLocation() ||
+  getHostFromExpoConfig() ||
+  getHostFromScriptUrl() ||
+  FALLBACK_HOST;
 export const API_BASE_URL = `http://${API_HOST}:5000/api`;
+const ANALYSIS_TIMEOUT_MS = 180000;
 
 function getUri(image: UploadableImage) {
   return typeof image === 'string' ? image : image.uri;
@@ -97,13 +117,33 @@ function normalizeCondition(value: string): DetectedCondition {
   if (normalized === 'burns' || normalized === 'burn') return 'Burns';
   if (normalized === 'rashes' || normalized === 'rash') return 'Rashes';
   if (normalized === 'warts' || normalized === 'wart') return 'Warts';
+  if (
+    normalized === 'healthy' ||
+    normalized === 'normal' ||
+    normalized === 'clear' ||
+    normalized === 'good' ||
+    normalized === 'no_condition' ||
+    normalized === 'no condition'
+  ) {
+    return 'Healthy';
+  }
 
-  return 'Acne';
+  throw new Error(`Unsupported prediction class received from backend: ${value}`);
 }
 
-export async function analyzeImage(image: UploadableImage): Promise<ScanResult> {
+function normalizeRiskLevel(value: unknown): ScanResult['riskLevel'] {
+  if (value === 'Low' || value === 'Medium' || value === 'High') {
+    return value;
+  }
+
+  return undefined;
+}
+
+export async function analyzeImage(image: UploadableImage, clinicalMetadata?: ClinicalMetadata): Promise<ScanResult> {
   const uri = getUri(image);
   const formData = new FormData();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), ANALYSIS_TIMEOUT_MS);
 
   if (Platform.OS === 'web') {
     const file = await createWebFile(image);
@@ -116,26 +156,96 @@ export async function analyzeImage(image: UploadableImage): Promise<ScanResult> 
     } as never);
   }
 
-  const response = await fetch(`${API_BASE_URL}/analysis/upload`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || 'Unable to analyze image.');
+  if (clinicalMetadata) {
+    formData.append('clinicalMetadata', JSON.stringify(clinicalMetadata));
   }
 
-  if (!data?.condition || typeof data?.confidence !== 'number') {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/analysis/upload`, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Analysis is taking too long. Please try again with a smaller or clearer image.');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
+  let data: unknown;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error('Backend returned an invalid response. Please restart the backend and try again.');
+  }
+
+  const payload = data as {
+    message?: unknown;
+    condition?: unknown;
+    confidence?: unknown;
+    reviewRequired?: unknown;
+    top_predictions?: unknown;
+    riskLevel?: unknown;
+    riskScore?: unknown;
+    riskConfidence?: unknown;
+    suggestedAction?: unknown;
+    riskFactors?: unknown;
+    riskDecision?: unknown;
+    riskQuality?: unknown;
+    uncertainty?: unknown;
+    confidenceBand?: unknown;
+    gradCam?: { image?: unknown; targetLayer?: unknown };
+  };
+
+  if (!response.ok) {
+    throw new Error(typeof payload.message === 'string' ? payload.message : 'Unable to analyze image.');
+  }
+
+  if (typeof payload.condition !== 'string' || typeof payload.confidence !== 'number') {
     throw new Error('Invalid prediction response received from backend.');
   }
 
   return {
     id: `${Date.now()}`,
     date: new Date().toISOString(),
-    condition: normalizeCondition(data.condition),
-    confidence: data.confidence,
+    condition: normalizeCondition(payload.condition),
+    confidence: payload.confidence,
+    reviewRequired: Boolean(payload.reviewRequired),
+    topPredictions: Array.isArray(payload.top_predictions)
+      ? payload.top_predictions
+          .filter((item: unknown) => {
+            const prediction = item as { condition?: unknown; confidence?: unknown };
+            return typeof prediction.condition === 'string' && typeof prediction.confidence === 'number';
+          })
+          .map((item: { condition: string; confidence: number }) => ({
+            condition: item.condition,
+            confidence: item.confidence,
+          }))
+      : undefined,
+    riskLevel: normalizeRiskLevel(payload.riskLevel),
+    riskScore: typeof payload.riskScore === 'number' ? payload.riskScore : undefined,
+    riskConfidence: typeof payload.riskConfidence === 'number' ? payload.riskConfidence : undefined,
+    suggestedAction: typeof payload.suggestedAction === 'string' ? payload.suggestedAction : undefined,
+    riskFactors: Array.isArray(payload.riskFactors) ? payload.riskFactors.filter((item: unknown) => typeof item === 'string') : undefined,
+    riskDecision:
+      payload.riskDecision === 'grade' ||
+      payload.riskDecision === 'abstain' ||
+      payload.riskDecision === 'quality_reject' ||
+      payload.riskDecision === 'unavailable'
+        ? payload.riskDecision
+        : undefined,
+    riskQuality:
+      payload.riskQuality && typeof payload.riskQuality === 'object'
+        ? (payload.riskQuality as ScanResult['riskQuality'])
+        : undefined,
+    uncertainty: typeof payload.uncertainty === 'number' ? payload.uncertainty : undefined,
+    confidenceBand: typeof payload.confidenceBand === 'string' ? payload.confidenceBand : undefined,
+    gradCamImage: typeof payload.gradCam?.image === 'string' ? payload.gradCam.image : undefined,
+    gradCamLayer: typeof payload.gradCam?.targetLayer === 'string' ? payload.gradCam.targetLayer : undefined,
     imageUri: uri,
     source: 'api',
   };

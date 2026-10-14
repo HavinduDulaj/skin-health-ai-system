@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 
 import Card from '../components/Card';
+import { AppIcon, ScreenHeader, StatusPill } from '../components/DesignSystem';
 import { useThemeContext } from '../context/ThemeContext';
 import { storageService } from '../services/storageService';
 import type { ScanResult } from '../types';
@@ -24,9 +25,10 @@ export default function HistoryScreen() {
         contentContainerStyle={styles.content}
         data={history}
         keyExtractor={(item) => item.id}
-        ListHeaderComponent={<Text style={[styles.title, { color: palette.text }]}>History</Text>}
+        ListHeaderComponent={<ScreenHeader title="History" subtitle="Saved scan results" />}
         ListEmptyComponent={
-          <Card>
+          <Card style={styles.emptyCard}>
+            <AppIcon name="document-text-outline" size={42} color={palette.muted} />
             <Text style={[styles.emptyTitle, { color: palette.text }]}>No scans yet</Text>
             <Text style={[styles.emptyText, { color: palette.secondaryText }]}>
               Saved scan results will appear here after you analyze and save an image.
@@ -46,7 +48,13 @@ export default function HistoryScreen() {
                   {new Date(item.date).toLocaleString()}
                 </Text>
               </View>
-              <Text style={[styles.chevron, { color: palette.secondaryText }]}>{'>'}</Text>
+              {item.riskLevel ? (
+                <StatusPill
+                  label={`${item.riskLevel} Risk`}
+                  tone={item.riskLevel === 'High' ? 'red' : item.riskLevel === 'Medium' ? 'amber' : 'green'}
+                />
+              ) : null}
+              <AppIcon name="chevron-forward-outline" size={18} color={palette.secondaryText} />
             </View>
           </Card>
         )}
@@ -63,13 +71,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 28,
   },
-  title: {
-    fontSize: 30,
-    fontWeight: '800',
-    marginBottom: 18,
-    marginTop: 10,
-    textAlign: 'center',
-  },
   itemCard: {
     marginBottom: 14,
   },
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   thumbnail: {
-    borderRadius: 14,
+    borderRadius: 8,
     height: 64,
     width: 64,
   },
@@ -95,17 +96,17 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     marginTop: 3,
   },
-  chevron: {
-    fontSize: 18,
-    fontWeight: '700',
-  },
   emptyTitle: {
     fontSize: 22,
     fontWeight: '800',
+    marginTop: 10,
   },
   emptyText: {
     fontSize: 15,
     lineHeight: 22,
     marginTop: 10,
+  },
+  emptyCard: {
+    alignItems: 'center',
   },
 });

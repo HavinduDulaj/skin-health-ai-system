@@ -1,4 +1,5 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 import { useThemeContext } from '../context/ThemeContext';
 import { radii } from '../theme/theme';
@@ -10,6 +11,7 @@ interface AppButtonProps {
   loading?: boolean;
   disabled?: boolean;
   style?: ViewStyle;
+  icon?: keyof typeof Ionicons.glyphMap;
 }
 
 export default function AppButton({
@@ -19,6 +21,7 @@ export default function AppButton({
   loading = false,
   disabled = false,
   style,
+  icon,
 }: AppButtonProps) {
   const { palette } = useThemeContext();
   const isPrimary = variant === 'primary';
@@ -43,16 +46,19 @@ export default function AppButton({
       {loading ? (
         <ActivityIndicator color={isPrimary ? '#FFFFFF' : palette.primary} />
       ) : (
-        <Text
-          style={[
-            styles.label,
-            {
-              color: isPrimary ? '#FFFFFF' : palette.text,
-            },
-          ]}
-        >
-          {label}
-        </Text>
+        <View style={styles.labelRow}>
+          {icon ? <Ionicons name={icon} size={18} color={isPrimary ? '#FFFFFF' : palette.primary} /> : null}
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isPrimary ? '#FFFFFF' : isGhost ? palette.primary : palette.text,
+              },
+            ]}
+          >
+            {label}
+          </Text>
+        </View>
       )}
     </Pressable>
   );
@@ -61,7 +67,7 @@ export default function AppButton({
 const styles = StyleSheet.create({
   base: {
     alignItems: 'center',
-    borderRadius: radii.lg,
+    borderRadius: radii.md,
     borderWidth: 1,
     justifyContent: 'center',
     minHeight: 50,
@@ -74,5 +80,10 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 15,
     fontWeight: '700',
+  },
+  labelRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8,
   },
 });

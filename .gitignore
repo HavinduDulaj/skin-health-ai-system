@@ -1,0 +1,25 @@
+# Local credentials and account data
+.env
+.env.*
+!.env.example
+backend/data/users.json
+*.pem
+*.key
+
+# Dependency and runtime caches
+**/node_modules/
+**/.expo/
+**/__pycache__/
+**/.venv/
+**/venv/
+*.pyc
+*.pyo
+*.log
+backend/models/_runtime/
+
+# Local datasets, uploads, and research exports
+backend/dataset/
+backend/uploads/
+backend/models/part_one_evaluation_package/
+paper_icac2026/
+frontend/docs/ui-ux/

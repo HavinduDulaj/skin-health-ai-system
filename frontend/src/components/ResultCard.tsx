@@ -10,6 +10,9 @@ interface ResultCardProps {
 export default function ResultCard({ result }: ResultCardProps) {
   const { palette } = useThemeContext();
   const percent = Math.round(result.confidence * 100);
+  const isHealthy = result.condition === 'Healthy';
+  const statusColor = isHealthy || !result.reviewRequired ? palette.success : palette.warning;
+  const statusText = isHealthy ? 'Good' : result.reviewRequired ? 'Review' : 'OK';
 
   return (
     <View style={styles.wrapper}>
@@ -23,12 +26,23 @@ export default function ResultCard({ result }: ResultCardProps) {
           },
         ]}
       >
-        <View style={[styles.iconCircle, { backgroundColor: palette.success }]}>
-          <Text style={styles.okText}>OK</Text>
+        <View style={[styles.iconCircle, { backgroundColor: statusColor }]}>
+          <Text style={styles.okText}>{statusText}</Text>
         </View>
-        <Text style={[styles.condition, { color: palette.primary }]}>{result.condition}</Text>
-        <Text style={[styles.label, { color: palette.secondaryText }]}>Confidence</Text>
-        <Text style={[styles.percent, { color: palette.success }]}>{percent}%</Text>
+        <Text style={[styles.condition, { color: isHealthy ? palette.success : palette.primary }]}>
+          {isHealthy ? 'No skin condition detected' : result.reviewRequired ? `Possible ${result.condition}` : result.condition}
+        </Text>
+        <Text style={[styles.label, { color: palette.secondaryText }]}>
+          {isHealthy ? 'Skin status confidence' : 'Confidence'}
+        </Text>
+        <Text style={[styles.percent, { color: statusColor }]}>{percent}%</Text>
+        {isHealthy ? (
+          <Text style={[styles.reviewText, { color: palette.secondaryText }]}>
+            Skin looks good in this image. Keep monitoring if symptoms appear.
+          </Text>
+        ) : result.reviewRequired ? (
+          <Text style={[styles.reviewText, { color: palette.secondaryText }]}>Low certainty. Check top predictions.</Text>
+        ) : null}
       </View>
     </View>
   );
@@ -45,9 +59,9 @@ const styles = StyleSheet.create({
   },
   circle: {
     alignItems: 'center',
-    borderRadius: 999,
+    borderRadius: 8,
     borderWidth: 1,
-    height: 252,
+    minHeight: 252,
     justifyContent: 'center',
     padding: 24,
     shadowOffset: { width: 0, height: 12 },
@@ -75,5 +89,11 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '800',
     marginTop: 6,
+  },
+  reviewText: {
+    fontSize: 12,
+    lineHeight: 17,
+    marginTop: 8,
+    textAlign: 'center',
   },
 });

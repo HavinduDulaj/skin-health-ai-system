@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from uuid import uuid4
 
-from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,10 +37,6 @@ def register_user(payload: dict) -> dict:
     required_fields = [
         "fullName",
         "email",
-        "phone",
-        "age",
-        "gender",
-        "address",
         "password",
     ]
 
@@ -58,10 +54,10 @@ def register_user(payload: dict) -> dict:
         "id": uuid4().hex,
         "fullName": payload["fullName"].strip(),
         "email": normalized_email,
-        "phone": payload["phone"].strip(),
-        "age": int(payload["age"]),
-        "gender": payload["gender"].strip(),
-        "address": payload["address"].strip(),
+        "phone": str(payload.get("phone", "")).strip(),
+        "age": int(payload["age"]) if str(payload.get("age", "")).strip().isdigit() else None,
+        "gender": str(payload.get("gender", "")).strip(),
+        "address": str(payload.get("address", "")).strip(),
         "password_hash": generate_password_hash(payload["password"]),
     }
 
@@ -73,3 +69,19 @@ def register_user(payload: dict) -> dict:
 
 def list_users() -> list[dict]:
     return [sanitize_user(user) for user in read_users()]
+
+
+def login_user(payload: dict) -> dict:
+    email = str(payload.get("email", "")).strip().lower()
+    password = str(payload.get("password", ""))
+
+    if not email or not password:
+      raise ValueError("Email and password are required.")
+
+    users = read_users()
+    user = next((item for item in users if item["email"].lower() == email), None)
+
+    if user is None or not check_password_hash(user.get("password_hash", ""), password):
+        raise ValueError("Invalid email or password.")
+
+    return sanitize_user(user)

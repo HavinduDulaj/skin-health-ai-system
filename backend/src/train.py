@@ -158,9 +158,15 @@ def build_model(num_classes: int) -> tuple[tf.keras.Model, tf.keras.Model]:
 
 
 def compile_model(model: tf.keras.Model, learning_rate: float) -> None:
+    loss = tf.keras.losses.SparseCategoricalCrossentropy()
+    try:
+        loss = tf.keras.losses.SparseCategoricalCrossentropy(label_smoothing=0.05)
+    except TypeError:
+        print("Sparse label smoothing is unavailable in this Keras runtime; using sparse crossentropy.")
+
     model.compile(
         optimizer=tf.keras.optimizers.AdamW(learning_rate=learning_rate, weight_decay=1e-4),
-        loss=tf.keras.losses.SparseCategoricalCrossentropy(label_smoothing=0.05),
+        loss=loss,
         metrics=[
             "accuracy",
             tf.keras.metrics.SparseTopKCategoricalAccuracy(k=2, name="top_2_accuracy"),
@@ -211,6 +217,7 @@ def evaluate_model(
     true_labels = np.concatenate([labels.numpy() for _, labels in dataset], axis=0)
     probabilities = model.predict(dataset, verbose=0)
     predicted_labels = np.argmax(probabilities, axis=1)
+    predicted_confidence = np.max(probabilities, axis=1)
 
     split_metrics = model.evaluate(dataset, verbose=0, return_dict=True)
     split_confusion = confusion_matrix(true_labels, predicted_labels).tolist()
@@ -240,9 +247,39 @@ def evaluate_model(
 
     return {
         "metrics": {key: float(value) for key, value in split_metrics.items()},
+        "calibration": {
+            "expected_calibration_error": expected_calibration_error(
+                true_labels,
+                predicted_labels,
+                predicted_confidence,
+            ),
+            "mean_confidence": float(np.mean(predicted_confidence)),
+        },
         "confusion_matrix": split_confusion,
         "classification_report": split_report,
     }
+
+
+def expected_calibration_error(
+    true_labels: np.ndarray,
+    predicted_labels: np.ndarray,
+    predicted_confidence: np.ndarray,
+    bins: int = 10,
+) -> float:
+    bin_edges = np.linspace(0.0, 1.0, bins + 1)
+    ece = 0.0
+    sample_count = len(true_labels)
+
+    for lower, upper in zip(bin_edges[:-1], bin_edges[1:]):
+        in_bin = (predicted_confidence > lower) & (predicted_confidence <= upper)
+        if not np.any(in_bin):
+            continue
+
+        bin_accuracy = np.mean(true_labels[in_bin] == predicted_labels[in_bin])
+        bin_confidence = np.mean(predicted_confidence[in_bin])
+        ece += (np.sum(in_bin) / sample_count) * abs(bin_accuracy - bin_confidence)
+
+    return float(ece)
 
 
 def compute_class_weights(train_counts: dict[str, int], class_names: list[str]) -> dict[int, float] | None:
@@ -283,6 +320,14 @@ def save_metadata(class_names: list[str], train_counts: dict[str, int], history:
         "best_val_accuracy": max(history["val_accuracy"]),
         "best_val_top_2_accuracy": max(history["val_top_2_accuracy"]),
         "tta_enabled": True,
+        "research_features": [
+            "transfer_learning",
+            "fine_tuning",
+            "test_time_augmentation",
+            "class_weighting",
+            "expected_calibration_error",
+            "uncertainty_from_prediction_entropy",
+        ],
     }
     METADATA_PATH.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 

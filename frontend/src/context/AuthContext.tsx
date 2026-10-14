@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
+import { authService } from '../services/authService';
 import { storageService } from '../services/storageService';
 import type { AuthStatus, AuthUser, SkinProfile, UserAccount } from '../types';
 
@@ -53,34 +54,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authStatus,
       user,
       registerAccount: async (account) => {
-        await storageService.saveAccount(account);
-        await storageService.saveSession(true);
+        const registeredUser = await authService.register(account);
+        await storageService.saveAccount({
+          fullName: registeredUser.fullName,
+          email: registeredUser.email,
+          password: '',
+        });
+        await storageService.saveSessionEmail(registeredUser.email);
         setUser({
-          fullName: account.fullName,
-          email: account.email,
+          fullName: registeredUser.fullName,
+          email: registeredUser.email,
           profile: null,
         });
         setAuthStatus('profile-setup');
       },
       signIn: async (email, password) => {
-        const storedAccount = await storageService.getAccount();
+        const signedInUser = await authService.login(email, password);
+        await storageService.saveAccount({
+          fullName: signedInUser.fullName,
+          email: signedInUser.email,
+          password: '',
+        });
+        await storageService.saveSessionEmail(signedInUser.email);
         const storedProfile = await storageService.getProfile();
-
-        if (!storedAccount) {
-          throw new Error('No account found. Please register first.');
-        }
-
-        if (
-          storedAccount.email.trim().toLowerCase() !== email.trim().toLowerCase() ||
-          storedAccount.password !== password
-        ) {
-          throw new Error('Invalid email or password.');
-        }
-
-        await storageService.saveSession(true);
         setUser({
-          fullName: storedAccount.fullName,
-          email: storedAccount.email,
+          fullName: signedInUser.fullName,
+          email: signedInUser.email,
           profile: storedProfile,
         });
         setAuthStatus(storedProfile ? 'authenticated' : 'profile-setup');

@@ -2,6 +2,7 @@
   "class_names": [
     "acne",
     "burns",
+    "healthy",
     "rashes",
     "warts"
   ],
@@ -9,12 +10,26 @@
     224,
     224
   ],
-  "batch_size": 8,
+  "batch_size": 16,
   "seed": 42,
   "train_counts": {
     "acne": 70,
     "burns": 70,
+    "healthy": 69,
     "rashes": 70,
     "warts": 69
-  }
+  },
+  "initial_epochs": 12,
+  "fine_tune_epochs": 18,
+  "best_val_accuracy": 0.8933333158493042,
+  "best_val_top_2_accuracy": 1.0,
+  "tta_enabled": true,
+  "research_features": [
+    "transfer_learning",
+    "fine_tuning",
+    "test_time_augmentation",
+    "class_weighting",
+    "expected_calibration_error",
+    "uncertainty_from_prediction_entropy"
+  ]
 }

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import AppButton from '../components/AppButton';
 import AppInput from '../components/AppInput';
+import { AppIcon } from '../components/DesignSystem';
 import { useAuth } from '../context/AuthContext';
 import { useThemeContext } from '../context/ThemeContext';
 import type { ScreenProps } from '../types';
@@ -14,13 +15,21 @@ export default function SignInScreen({ navigation }: ScreenProps<'SignIn'>) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState('');
 
   const handleSignIn = async () => {
+    if (!email.trim() || !password.trim()) {
+      setFormError('Enter your email and password to continue.');
+      return;
+    }
+
     try {
+      setFormError('');
       setLoading(true);
       await signIn(email, password);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to sign in.';
+      setFormError(message);
       Alert.alert('Sign In Failed', message);
     } finally {
       setLoading(false);
@@ -29,16 +38,23 @@ export default function SignInScreen({ navigation }: ScreenProps<'SignIn'>) {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: palette.background }]}>
-      <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
+          <View style={[styles.iconBadge, { backgroundColor: palette.surface }]}>
+            <AppIcon name="shield-checkmark-outline" size={24} color={palette.teal} />
+          </View>
           <Text style={[styles.title, { color: palette.text }]}>Welcome Back</Text>
-          <Text style={[styles.subtitle, { color: palette.secondaryText }]}>Sign in to continue</Text>
+          <Text style={[styles.subtitle, { color: palette.secondaryText }]}>Sign in to continue to DermaSafe AI</Text>
         </View>
 
         <View style={styles.form}>
           <AppInput
             autoCapitalize="none"
-            icon="@"
+            icon="mail-outline"
             keyboardType="email-address"
             onChangeText={setEmail}
             placeholder="Email"
@@ -46,20 +62,29 @@ export default function SignInScreen({ navigation }: ScreenProps<'SignIn'>) {
           />
           <AppInput
             autoCapitalize="none"
-            icon="*"
+            icon="lock-closed-outline"
             onChangeText={setPassword}
             placeholder="Password"
-            rightIcon="o"
+            rightIcon="eye-off-outline"
             secureTextEntry
             value={password}
           />
-          <TouchableOpacity style={styles.forgotWrap}>
+          <TouchableOpacity
+            style={styles.forgotWrap}
+            onPress={() => Alert.alert('Password Recovery', 'Password recovery is not connected yet. Use the password you registered with.')}
+          >
             <Text style={[styles.forgotText, { color: palette.primary }]}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
 
+        {formError ? (
+          <View style={[styles.errorBox, { backgroundColor: '#FFECEC', borderColor: '#FCA5A5' }]}>
+            <Text style={[styles.errorText, { color: palette.danger }]}>{formError}</Text>
+          </View>
+        ) : null}
+
         <View style={styles.footer}>
-          <AppButton label="Sign In" loading={loading} onPress={handleSignIn} />
+          <AppButton icon="log-in-outline" label="Sign In" loading={loading} onPress={handleSignIn} />
           <Text style={[styles.footerText, { color: palette.secondaryText }]}>
             Don't have an account?{' '}
             <Text style={[styles.inlineLink, { color: palette.primary }]} onPress={() => navigation.navigate('Register')}>
@@ -67,7 +92,7 @@ export default function SignInScreen({ navigation }: ScreenProps<'SignIn'>) {
             </Text>
           </Text>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -77,13 +102,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 28,
+    paddingVertical: 24,
   },
   header: {
     alignItems: 'center',
     marginBottom: 28,
+  },
+  iconBadge: {
+    alignItems: 'center',
+    borderRadius: 8,
+    height: 52,
+    justifyContent: 'center',
+    marginBottom: 16,
+    width: 52,
   },
   title: {
     fontSize: 34,
@@ -107,6 +141,19 @@ const styles = StyleSheet.create({
   footer: {
     gap: 16,
     marginTop: 28,
+  },
+  errorBox: {
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  errorText: {
+    fontSize: 13,
+    fontWeight: '700',
+    lineHeight: 18,
+    textAlign: 'center',
   },
   footerText: {
     fontSize: 14,

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
 
 import { useThemeContext } from '../context/ThemeContext';
@@ -5,8 +6,8 @@ import { radii } from '../theme/theme';
 
 interface AppInputProps extends TextInputProps {
   label?: string;
-  icon?: string;
-  rightIcon?: string;
+  icon?: keyof typeof Ionicons.glyphMap;
+  rightIcon?: keyof typeof Ionicons.glyphMap;
 }
 
 export default function AppInput({ label, icon, rightIcon, style, ...props }: AppInputProps) {
@@ -24,7 +25,7 @@ export default function AppInput({ label, icon, rightIcon, style, ...props }: Ap
           },
         ]}
       >
-        {icon ? <Text style={[styles.iconText, { color: palette.muted }]}>{icon}</Text> : null}
+        {icon ? <Ionicons name={icon} size={18} color={palette.muted} style={styles.icon} /> : null}
         <TextInput
           placeholderTextColor={palette.muted}
           style={[
@@ -36,7 +37,7 @@ export default function AppInput({ label, icon, rightIcon, style, ...props }: Ap
           ]}
           {...props}
         />
-        {rightIcon ? <Text style={[styles.iconText, { color: palette.muted }]}>{rightIcon}</Text> : null}
+        {rightIcon ? <Ionicons name={rightIcon} size={18} color={palette.muted} style={styles.icon} /> : null}
       </View>
     </View>
   );
@@ -64,11 +65,8 @@ const styles = StyleSheet.create({
     minHeight: 52,
     paddingVertical: 12,
   },
-  iconText: {
-    fontSize: 13,
-    fontWeight: '700',
+  icon: {
     marginHorizontal: 6,
     minWidth: 18,
-    textAlign: 'center',
   },
 });

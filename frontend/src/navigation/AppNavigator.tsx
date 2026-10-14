@@ -8,10 +8,12 @@ import type { RootStackParamList } from '../types';
 import CameraCaptureScreen from '../screens/CameraCaptureScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import HistoryScreen from '../screens/HistoryScreen';
+import IngredientRecommendationScreen from '../screens/IngredientRecommendationScreen';
 import LandingScreen from '../screens/LandingScreen';
 import ProfileSetupScreen from '../screens/ProfileSetupScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import ResultScreen from '../screens/ResultScreen';
+import RiskResultScreen from '../screens/RiskResultScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import SignInScreen from '../screens/SignInScreen';
 import UploadImageScreen from '../screens/UploadImageScreen';
@@ -86,6 +88,12 @@ export default function AppNavigator() {
             <Stack.Screen name="UploadImage" component={UploadImageScreen} />
             <Stack.Screen name="CameraCapture" component={CameraCaptureScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Result" component={ResultScreen} />
+            <Stack.Screen name="RiskResult" component={RiskResultScreen} />
+            <Stack.Screen
+              name="IngredientRecommendations"
+              component={IngredientRecommendationScreen}
+              options={{ headerShown: false }}
+            />
             <Stack.Screen name="History" component={HistoryScreen} />
             <Stack.Screen name="UserProfile" component={UserProfileScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
