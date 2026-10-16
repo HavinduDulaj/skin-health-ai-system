@@ -1,0 +1,50 @@
+{
+  "acne": {
+    "Low": [
+      { "name": "Niacinamide", "benefit": "Helps regulate sebum and calm mild inflammation.", "caution": "Patch-test if you have sensitive skin." },
+      { "name": "Salicylic acid (low %)", "benefit": "Gentle exfoliation for clogged pores." }
+    ],
+    "Medium": [
+      { "name": "Benzoyl peroxide", "benefit": "Antibacterial support for moderate inflammatory acne.", "caution": "Can bleach fabrics; start slowly." },
+      { "name": "Azelaic acid", "benefit": "Anti-inflammatory and helps post-inflammatory marks." }
+    ],
+    "High": [
+      { "name": "Seek clinician review", "benefit": "Higher-risk patterns warrant professional assessment before strong actives.", "caution": "This service does not diagnose." }
+    ]
+  },
+  "burns": {
+    "Low": [
+      { "name": "Aloe vera", "benefit": "Cooling moisture for superficial irritation." },
+      { "name": "Ceramides", "benefit": "Support barrier repair after minor heat exposure." }
+    ],
+    "Medium": [
+      { "name": "Petroleum jelly", "benefit": "Occlusive protection while skin heals.", "caution": "Do not use on open blistering without medical advice." }
+    ],
+    "High": [
+      { "name": "Urgent care", "benefit": "Deep or spreading burns need immediate clinical care.", "caution": "Not a substitute for emergency services." }
+    ]
+  },
+  "rash": {
+    "Low": [
+      { "name": "Colloidal oatmeal", "benefit": "Soothes mild contact irritation." },
+      { "name": "Fragrance-free emollient", "benefit": "Reduces dryness-driven itch." }
+    ],
+    "Medium": [
+      { "name": "Hydrocortisone (OTC, short course)", "benefit": "May calm localized inflammatory rashes.", "caution": "Avoid face/groin unless directed." }
+    ],
+    "High": [
+      { "name": "Allergy / infection check", "benefit": "Spreading rash with fever needs professional evaluation." }
+    ]
+  },
+  "warts": {
+    "Low": [
+      { "name": "Salicylic acid plaster", "benefit": "Gradual keratolysis for small common warts.", "caution": "Avoid healthy surrounding skin." }
+    ],
+    "Medium": [
+      { "name": "Clinician cryotherapy", "benefit": "Recurrent or clustered warts often need in-clinic treatment." }
+    ],
+    "High": [
+      { "name": "Dermatology referral", "benefit": "Fast-growing or painful lesions should be assessed in person." }
+    ]
+  }
+}

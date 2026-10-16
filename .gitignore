@@ -1,0 +1,37 @@
+DermaSafe_Recovery/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.venv312/
+venv/
+.py314-packages/
+pipeline_output/
+training_output/
+# Ignore generated checkpoints. Re-include only the two runtime files.
+models/*
+!models/skin_risk_v5_metadata.json
+data/raw/
+data/examples/
+*.keras
+!models/skin_risk_v5_final.keras
+*.zip
+*.pt
+*.candidate.joblib
+*.candidate.metrics.json
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+node_modules/
+_node_modules_backup/
+_node_modules_incomplete/
+dataset/
+.expo/
+mobile/.expo/
+mobile/dist/
+_expo_backup/
+_git_backup/
+services/ingredients/node_modules/
+
+# Local environment files. Templates such as .env.example stay tracked.
+.env
