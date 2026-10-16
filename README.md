@@ -26,53 +26,82 @@ pipeline/               Dataset audit and rebuild code
 data/raw/               Provided V5 photographs (never overwritten)
 data/examples/          Labelled preview frames from the V5 notebook
 pipeline_output/        Audit reports + cleaned Skin_Risk_Dataset_V4
-models/                 V5 checkpoint, model card, test predictions
+models/                 V5 checkpoint + model card (tracked); other artifacts ignored
 notebooks/              Colab pipeline + Skin_Risk_V5 training
 scripts/                Linear-probe bootstrap for the UI
 screenshots/            Thesis / viva screenshots (optional)
 ```
 
-## Run the mobile app
+## Set up from GitHub
 
-Terminal 1 — Python screening API:
+Clone the `risk-level-analysis` branch. The runtime checkpoint is already in the repo at `models/skin_risk_v5_final.keras`, with `models/skin_risk_v5_metadata.json` beside it. No separate model download is required. Paths are relative to the repository root, so the clone can live in any folder.
 
-```bash
+```powershell
+git clone https://github.com/HavinduDulaj/skin-health-ai-system.git
+cd skin-health-ai-system
+git checkout risk-level-analysis
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+```
+
+`requirements.txt` installs FastAPI, Keras, and PyTorch. Keras uses the Torch backend when TensorFlow is not installed (including on Python 3.14). The first `python -m backend` writes `models/skin_risk_v5.weights.h5` next to the checkpoint. That generated file stays out of Git.
+
+### Backend
+
+```powershell
 python -m backend
 ```
 
-Terminal 2 — Expo mobile client:
+The API listens on `0.0.0.0:8000`. Override the bind address with `DERMA_HOST` and `DERMA_PORT` if needed. OpenAPI docs: http://127.0.0.1:8000/docs
 
-```bash
+Health check: http://127.0.0.1:8000/api/v1/health  
+Expect `"model_loaded": true` and `"model_kind": "keras_v5"`.
+
+### Web application
+
+One process serves the API and the browser UI:
+
+```powershell
+python serve.py
+```
+
+Open http://127.0.0.1:8000. Upload a photograph, choose acne, burns, rash, or warts, and run screening.
+
+To serve the UI on its own port instead, start the API as above and in a second terminal run `python -m frontend`. That UI is at http://127.0.0.1:5173 and calls http://127.0.0.1:8000.
+
+### Expo mobile app
+
+```powershell
 cd mobile
 npm install
 npx expo start
 ```
 
-Scan the QR code with Expo Go, or press `a` / `i` for an emulator. On a physical phone, set `EXPO_PUBLIC_API_URL` in `mobile/.env` to your PC's LAN address (e.g. `http://192.168.1.10:8000`).
+Scan the QR code with Expo Go, or press `a` for an Android emulator. On-device history, progress, product usage, and reminders are stored in SQLite on the phone (`dermasafe.db`). That database is created at runtime and is not part of the repository.
 
-OpenAPI docs: http://127.0.0.1:8000/docs
+### Phone API address
 
-### Legacy browser demo
+Leave `EXPO_PUBLIC_API_URL` unset on a physical phone. The app uses the Expo dev server's host and port 8000, so a laptop IP does not have to be written into the project. The phone and the PC need to be on the same network, and the API must be running.
 
-Together (API serves the old web UI):
+If auto-detect fails, copy `mobile/.env.example` to `mobile/.env` and set one line to this PC's IPv4 address (`ipconfig` on Windows):
 
-```bash
-python serve.py
+```
+EXPO_PUBLIC_API_URL=http://<this-pc-ipv4>:8000
 ```
 
-Open http://127.0.0.1:8000
+Restart Expo after changing `.env`. `mobile/.env` is local and is not committed.
 
-Split browser demo:
+### Check prediction and tracking
 
-```bash
-python -m backend          # API on :8000
-python -m frontend         # UI on :5173  → talks to :8000
-```
+1. Open http://127.0.0.1:8000/api/v1/health and confirm `keras_v5` is loaded.
+2. In the web UI or the mobile **Photo** screen, upload a clear lesion photo, select a lesion family, and run screening. The result is Low, Medium, High, abstain, or a quality reject.
+3. On mobile, open **Track progress** from the results screen to save a follow-up, an optional product name, and a reminder.
+4. Open **Progress** from the home screen to see scans stored on that phone.
 
-Photograph or upload a lesion, pick acne / burns / rash / warts, and run screening. Quality checks always run. Risk grades need `models/skin_risk_v5_final.keras`, `models/best.pt` from `train_v4.py`, or `models/risk_head.npz` from `python scripts/bootstrap_web_model.py`.
+The in-app sample gallery reads `pipeline_output/Skin_Risk_Dataset_V4`, which is not in Git. A fresh clone can still screen uploaded photographs. The gallery stays empty until that dataset exists locally.
 
-### What the API returns
+## What the API returns
 
 | `decision` | Meaning |
 |---|---|

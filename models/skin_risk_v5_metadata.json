@@ -1,0 +1,28 @@
+{
+  "created_utc": "2026-08-28T13:31:24.784241+00:00",
+  "dataset": "Skin_Risk_Dataset_V5_Synthetic",
+  "architecture": "EfficientNetV2B0 + lesion one-hot input + softmax risk head",
+  "selected_checkpoint": "Fine-tuned Stage 2",
+  "image_size": 260,
+  "lesion_order": [
+    "acne",
+    "burns",
+    "rash",
+    "warts"
+  ],
+  "risk_order": [
+    "Low",
+    "Medium",
+    "High"
+  ],
+  "validation_accuracy": 0.6375321336760925,
+  "validation_macro_f1": 0.639225181598063,
+  "test_accuracy": 0.596401028277635,
+  "test_macro_f1": 0.5988081235787658,
+  "v4_test_accuracy_baseline": 0.5835,
+  "v4_test_macro_f1_baseline": 0.5859,
+  "training_images": 3000,
+  "validation_images": 389,
+  "test_images": 389,
+  "synthetic_training_images": 1056
+}
