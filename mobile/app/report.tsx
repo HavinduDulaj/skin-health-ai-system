@@ -14,7 +14,7 @@ import { DECISION_LABEL } from "../lib/config";
 import { colors, fonts, radius, spacing } from "../lib/theme";
 
 export default function ReportScreen() {
-  const { lastResult, lastPhotoUri, session } = useApp();
+  const { lastResult, lastPhotoUri } = useApp();
 
   if (!lastResult) {
     return (
@@ -30,16 +30,18 @@ export default function ReportScreen() {
     );
   }
 
-  const cond = lastResult.condition?.used || lastResult.lesion || "—";
+  const rawCondition = lastResult.condition?.used || lastResult.lesion || "—";
+  const cond = rawCondition.charAt(0).toUpperCase() + rawCondition.slice(1);
+  const riskLabel =
+    lastResult.decision === "grade" && lastResult.risk
+      ? lastResult.risk.charAt(0).toUpperCase() + lastResult.risk.slice(1)
+      : "Not issued";
   const grade =
-    lastResult.decision === "grade"
-      ? `${lastResult.risk} risk`
-      : DECISION_LABEL[lastResult.decision] || lastResult.decision;
+    lastResult.decision === "grade" ? `${riskLabel} risk` : DECISION_LABEL[lastResult.decision] || lastResult.decision;
 
   const rows: Array<[string, string]> = [
-    ["Name", session?.name || "Anonymous"],
     ["Condition", cond],
-    ["Risk", lastResult.decision === "grade" ? lastResult.risk || "—" : "Not issued"],
+    ["Risk", riskLabel],
     ["Confidence", pct(lastResult.confidence)],
     ["Decision", DECISION_LABEL[lastResult.decision] || lastResult.decision],
     ["Advice", lastResult.guidance?.headline || "—"],
@@ -79,7 +81,6 @@ export default function ReportScreen() {
             ))
           : null}
 
-        <Fine>{lastResult.disclaimer}</Fine>
         <GhostButton label="New assessment" onPress={() => router.push("/assess")} />
       </ScrollView>
     </Screen>
@@ -109,7 +110,6 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontFamily: fonts.sansMed,
     fontSize: 14,
-    textTransform: "capitalize",
   },
   arch: {
     flexDirection: "row",

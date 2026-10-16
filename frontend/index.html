@@ -15,7 +15,7 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Instrument+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/app.css" />
+    <link rel="stylesheet" href="/app.css?v=15" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%23F5F7F6' width='32' height='32' rx='10'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%232A6B5E' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='16' r='2.4' fill='%232A6B5E'/%3E%3C/svg%3E"
@@ -36,11 +36,20 @@
         <a href="#/report" data-nav>Report</a>
         <a href="#/method" data-nav>How it works</a>
         <a href="#/log" data-nav>History</a>
+        <a href="#/progress" data-nav>Progress</a>
         <a href="#/lab" data-nav>Lab</a>
       </nav>
     </header>
 
     <main id="main">
+      <button class="back" type="button" id="back" hidden>Back</button>
+      <div class="reminder-banner" id="reminder-banner" hidden>
+        <p>It's time for your skin follow-up check.</p>
+        <div class="sheet-actions">
+          <button class="btn btn-primary" type="button" id="reminder-open">Check now</button>
+          <button class="btn btn-ghost" type="button" id="reminder-later">Later</button>
+        </div>
+      </div>
       <section class="view view-home" data-view="home">
         <div class="hero">
           <div class="hero-copy">
@@ -76,14 +85,9 @@
           <p class="eyebrow">Get started</p>
           <h2>Before we begin</h2>
           <p class="lede tight">
-            Your name stays in this browser for the session. Please confirm this
-            is risk guidance only — not a medical diagnosis.
+            Please confirm this is risk guidance only — not a medical diagnosis.
           </p>
           <form class="session-form" id="session-form">
-            <label>
-              Display name <span class="fine">(optional)</span>
-              <input id="session-name" type="text" maxlength="40" autocomplete="nickname" placeholder="e.g. Avishka" />
-            </label>
             <label class="check">
               <input id="session-accept" type="checkbox" required />
               I understand this tool provides risk-awareness guidance only and does not diagnose, treat, or replace a dermatologist.
@@ -160,13 +164,16 @@
           <p class="caution" id="result-caution" hidden></p>
         </div>
         <p class="condition-line" id="result-condition"></p>
-        <ol class="trace" id="pipeline-trace" aria-label="Screening pipeline"></ol>
         <div class="result-grid">
           <article class="card meter-card">
-            <h3>Grade probabilities</h3>
+            <h3>Risk prediction</h3>
             <div class="triad" id="triad" hidden></div>
             <div class="result-note" id="result-note"></div>
             <p class="fine" id="result-uncertain"></p>
+            <div id="result-guidance" hidden>
+              <h3>Guidance</h3>
+              <p class="fine" id="result-guidance-copy"></p>
+            </div>
           </article>
           <article class="card">
             <h3>Skin health advisory</h3>
@@ -195,17 +202,68 @@
             <p class="fine" id="result-lesion"></p>
           </article>
         </div>
-        <article class="card effect-card" id="lesion-effect" hidden>
-          <h3>Lesion-context ablation</h3>
-          <p class="fine" id="lesion-effect-note"></p>
-        </article>
         <div class="result-actions">
-          <a class="btn btn-primary" href="#/guidance" data-nav>Risk guidance dashboard</a>
+          <button class="btn btn-primary" type="button" id="btn-track" hidden>Track skin progress</button>
+          <a class="btn btn-ghost" href="#/guidance" data-nav>Risk guidance dashboard</a>
           <a class="btn btn-ghost" href="#/report" data-nav>Advisory report</a>
-          <a class="btn btn-ghost" href="#/assess" data-nav>New assessment</a>
-          <button class="btn btn-ghost" type="button" id="btn-print">Print this page</button>
+          <a class="btn btn-ghost" href="#/assess" data-nav>New photo</a>
         </div>
-        <p class="disclaimer" id="result-disclaimer"></p>
+        <p class="disclaimer">Not a diagnosis. If a skin concern looks serious or is getting worse, see a clinician.</p>
+      </section>
+
+      <section class="view view-track" data-view="track" hidden>
+        <p class="eyebrow">Skin progress</p>
+        <h2 id="track-title">Track skin progress</h2>
+        <p class="lede tight" id="track-snapshot"></p>
+        <form class="session-form" id="track-form">
+          <label>Body area <span class="fine">(optional)</span>
+            <input id="track-area" type="text" maxlength="40" placeholder="e.g. left cheek" />
+          </label>
+          <h3>Product usage (optional)</h3>
+          <p class="fine">Type a product you already use. This does not recommend products or claim they treat a condition. Leave the name blank to skip.</p>
+          <label>Product name
+            <input id="track-product" type="text" maxlength="80" placeholder="e.g. Acne cream" />
+          </label>
+          <label>Start date
+            <input id="track-product-date" type="date" />
+          </label>
+          <label>Usage notes
+            <textarea id="track-product-notes" maxlength="240" rows="2" placeholder="e.g. Applied once daily"></textarea>
+          </label>
+          <h3>When would you like to check your skin again?</h3>
+          <div class="chips" id="track-when">
+            <label class="chip"><input type="radio" name="when" value="" checked /> No reminder</label>
+            <label class="chip"><input type="radio" name="when" value="1" /> Tomorrow</label>
+            <label class="chip"><input type="radio" name="when" value="3" /> In 3 days</label>
+            <label class="chip"><input type="radio" name="when" value="7" /> In 7 days</label>
+            <label class="chip"><input type="radio" name="when" value="14" /> In 14 days</label>
+            <label class="chip"><input type="radio" name="when" value="custom" />
+              <svg class="cal" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2 6.5h12M5 2v2.5M11 2v2.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+              Custom Date</label>
+          </div>
+          <div id="track-custom-wrap" hidden>
+            <label>Date
+              <input id="track-custom" type="date" />
+            </label>
+            <p class="fine" id="track-custom-chosen"></p>
+          </div>
+          <p class="fine">A reminder is only a personal prompt. It does not mean it is medically safe to wait until that time.</p>
+          <button class="btn btn-primary" type="submit">Save progress</button>
+        </form>
+        <p class="disclaimer">AI predictions are not a medical diagnosis. Changes between scans do not prove that a product caused improvement. Seek professional medical advice for concerning or worsening symptoms.</p>
+      </section>
+
+      <section class="view view-progress" data-view="progress" hidden>
+        <div class="page-intro">
+          <p class="eyebrow">My skin progress</p>
+          <h2>Tracked scans on this device.</h2>
+          <p class="lede">Personal monitoring only. These records stay in this browser.</p>
+        </div>
+        <div class="lab-grid" id="progress-list"></div>
+      </section>
+
+      <section class="view view-compare" data-view="compare" hidden>
+        <div id="compare-root"></div>
       </section>
 
       <section class="view view-guidance" data-view="guidance" hidden>
@@ -235,11 +293,6 @@
             <p class="fine">If confidence is low or the top-two grades are close, no winner is forced. Retake the photograph or see a clinician rather than guessing.</p>
           </article>
         </div>
-        <article class="card effect-card" id="guidance-latest">
-          <h3>This session</h3>
-          <p class="fine" id="guidance-latest-copy">Run an assessment to see your latest condition, grade, and caution here.</p>
-          <a class="btn btn-primary" href="#/assess" data-nav>Upload a photograph</a>
-        </article>
       </section>
 
       <section class="view view-report" data-view="report" hidden>
@@ -253,7 +306,6 @@
             <img id="report-cam" alt="Grad-CAM overlay" hidden />
           </div>
           <ol class="arch" id="report-module"></ol>
-          <p class="disclaimer" id="report-disclaimer"></p>
           <div class="result-actions">
             <button class="btn btn-primary" type="button" id="btn-print-report">Print report</button>
             <a class="btn btn-ghost" href="#/assess" data-nav>New assessment</a>
@@ -292,10 +344,10 @@
           <p class="eyebrow">Method</p>
           <h2>Built to be honest when the photographs are not separable.</h2>
           <p id="method-problem">
-            A previous model sat near 57–60% test accuracy, mostly mixing
-            <em>Medium</em> with Low and High. Cleaning can remove duplicates,
-            blur, and train/test leakage. It cannot invent a visual boundary
-            that is not in the pictures.
+            The screening head separates Low, Medium, and High for acne, burns,
+            rash, and warts. Cleaning can remove duplicates, blur, and
+            train/test leakage. It cannot invent a visual boundary that is not
+            in the pictures.
           </p>
           <ol class="pipeline" id="method-pipeline">
             <li>Validate files, find exact and near-duplicates, score quality.</li>
@@ -318,15 +370,6 @@
       </section>
     </main>
 
-    <footer class="foot">
-      <p>
-        Derma-Safe AI · R26-IT-058 · undergraduate research. Screening only.
-        Photographs stay on this machine for the request — they are not stored
-        as a medical record.
-      </p>
-      <p class="fine" id="api-status"></p>
-    </footer>
-
     <dialog class="sheet" id="camera-sheet">
       <div class="sheet-inner">
         <p class="eyebrow">Camera</p>
@@ -345,6 +388,7 @@
     <div class="busy" id="busy" hidden>Checking your photo…</div>
     <div class="toast" id="toast" hidden role="status"></div>
     <script src="/config.js"></script>
-    <script src="/app.js"></script>
+    <script src="/progress.js?v=7"></script>
+    <script src="/app.js?v=13"></script>
   </body>
 </html>

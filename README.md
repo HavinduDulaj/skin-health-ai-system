@@ -4,14 +4,14 @@ Final-year research: **leakage-aware dermatological risk screening** (component 
 
 Four lesion families (acne, burns, rash, warts) and three grades (Low / Medium / High). The system is allowed to **abstain** when the top-two classes are close, and to **reject** a frame when photograph quality is too low. It is a screening aid, not a diagnosis.
 
-A previous model sat near 57–60% test accuracy, mainly confusing Medium with Low and High. Cleaning can remove leakage and noisy files. It cannot invent a visual boundary that is not in the photographs. V5 test accuracy is about **60%**. That ceiling is part of the result.
+Cleaning can remove leakage and noisy files. It cannot invent a visual boundary that is not in the photographs. Medium remains the hardest grade to separate.
 
 ## Technology stack
 
 | Layer | Technologies |
 |---|---|
 | **Mobile frontend** | React Native + Expo + JavaScript/TypeScript |
-| **Backend** | Python REST API (FastAPI) · Node.js + Express (ingredient KB) |
+| **Backend** | Python REST API (FastAPI) |
 | **AI/ML** | TensorFlow, Keras, scikit-learn |
 | **Database** | SQLite (on-device screening history & profile) |
 | **Data exchange** | JSON |
@@ -21,7 +21,7 @@ A previous model sat near 57–60% test accuracy, mainly confusing Medium with L
 mobile/                 Expo React Native app (primary UI)
 frontend/               Browser demo UI (HTML/CSS/JS)
 backend/                Python screening API (/api/v1, /docs)
-services/ingredients/   Node.js ingredient knowledge-base
+services/ingredients/   Unused ingredient knowledge-base (not called by the app)
 pipeline/               Dataset audit and rebuild code
 data/raw/               Provided V5 photographs (never overwritten)
 data/examples/          Labelled preview frames from the V5 notebook
@@ -41,15 +41,7 @@ pip install -r requirements.txt
 python -m backend
 ```
 
-Terminal 2 — ingredient knowledge-base (optional):
-
-```bash
-cd services/ingredients
-npm install
-npm start
-```
-
-Terminal 3 — Expo mobile client:
+Terminal 2 — Expo mobile client:
 
 ```bash
 cd mobile

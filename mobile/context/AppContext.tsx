@@ -16,6 +16,8 @@ interface AppContextValue {
   startSession: (name: string) => Promise<void>;
   lastResult: AnalyzeResponse | null;
   lastPhotoUri: string | null;
+  followSessionId: string;
+  setFollowSessionId: (id: string) => void;
   setLastScreening: (result: AnalyzeResponse, photoUri: string) => void;
   health: HealthResponse | null;
   apiOnline: boolean;
@@ -28,6 +30,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<SessionRecord | null>(null);
   const [lastResult, setLastResult] = useState<AnalyzeResponse | null>(null);
   const [lastPhotoUri, setLastPhotoUri] = useState<string | null>(null);
+  const [followSessionId, setFollowSessionId] = useState("");
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [apiOnline, setApiOnline] = useState(false);
 
@@ -68,6 +71,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       startSession,
       lastResult,
       lastPhotoUri,
+      followSessionId,
+      setFollowSessionId,
       setLastScreening,
       health,
       apiOnline,
@@ -78,6 +83,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       startSession,
       lastResult,
       lastPhotoUri,
+      followSessionId,
       setLastScreening,
       health,
       apiOnline,

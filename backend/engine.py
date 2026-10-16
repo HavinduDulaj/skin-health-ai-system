@@ -47,8 +47,7 @@ GUIDANCE = {
     "Medium": {
         "headline": "Medium risk — observe, and seek guidance if it persists.",
         "summary": (
-            "The condition may need monitoring. Medium is also where this dataset "
-            "overlaps Low and High, so do not treat a single score as a verdict."
+            "The condition may need monitoring. Do not treat a single score as a verdict."
         ),
         "steps": [
             "Note pain, itch, warmth, discharge, or rapid change.",
@@ -75,8 +74,7 @@ GUIDANCE = {
 ABSTAIN_GUIDANCE = {
     "headline": "No single grade — the safety filter held the result.",
     "summary": (
-        "The two leading grades are too close, or confidence is too low, to commit. "
-        "The proposal requires a caution message instead of a forced label."
+        "The two leading grades are too close, or confidence is too low, to commit."
     ),
     "steps": [
         "Read the probability distribution rather than a winner.",
@@ -89,8 +87,8 @@ ABSTAIN_GUIDANCE = {
 QUALITY_GUIDANCE = {
     "headline": "This frame is not suitable for screening.",
     "summary": (
-        "Brightness, focus, or resolution failed the quality gate. "
-        "The proposal rejects the image before lesion analysis."
+        "Brightness, focus, or resolution failed the quality check. "
+        "No risk grade is given until the photograph is clearer."
     ),
     "steps": [
         "Hold steady. Motion looks like blur to the model.",

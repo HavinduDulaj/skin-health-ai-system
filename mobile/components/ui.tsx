@@ -1,6 +1,5 @@
 import {
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -207,11 +206,7 @@ export function PipelineStrip({
 }) {
   if (!steps.length) return null;
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.trace}
-    >
+    <View style={styles.trace}>
       {steps.map((step) => {
         const held = step.status === "rejected" || step.status === "held";
         const passed = step.status === "passed";
@@ -226,15 +221,11 @@ export function PipelineStrip({
           >
             <Text style={styles.traceTitle}>{step.title}</Text>
             <Text style={styles.traceStatus}>{step.status}</Text>
-            {step.detail ? (
-              <Text style={styles.traceDetail} numberOfLines={3}>
-                {step.detail}
-              </Text>
-            ) : null}
+            {step.detail ? <Text style={styles.traceDetail}>{step.detail}</Text> : null}
           </View>
         );
       })}
-    </ScrollView>
+    </View>
   );
 }
 
@@ -504,7 +495,6 @@ const styles = StyleSheet.create({
   },
   trace: { gap: 8, paddingRight: 8 },
   traceStep: {
-    width: 148,
     backgroundColor: colors.paper2,
     borderWidth: 1,
     borderColor: colors.line,

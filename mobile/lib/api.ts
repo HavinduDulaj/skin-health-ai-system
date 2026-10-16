@@ -1,10 +1,6 @@
 import { File } from "expo-file-system";
-import { API_URL, INGREDIENTS_URL } from "./config";
-import type {
-  AnalyzeResponse,
-  HealthResponse,
-  IngredientRecommendation,
-} from "./types";
+import { API_URL } from "./config";
+import type { AnalyzeResponse, HealthResponse } from "./types";
 
 async function parseJson<T>(res: Response): Promise<T> {
   const data = await res.json();
@@ -55,15 +51,6 @@ export async function fetchSamples(): Promise<{
 
 export function sampleImageUrl(id: string): string {
   return `${API_URL}/api/v1/samples/${id}`;
-}
-
-export async function fetchIngredientRecommendations(
-  condition: string,
-  riskLevel: string
-): Promise<IngredientRecommendation> {
-  const params = new URLSearchParams({ condition, risk_level: riskLevel });
-  const res = await fetch(`${INGREDIENTS_URL}/api/ingredients?${params}`);
-  return parseJson(res);
 }
 
 export function pct(value?: number | null): string {

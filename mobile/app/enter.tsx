@@ -1,21 +1,12 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { Body, Eyebrow, Fine, PrimaryButton, Screen, Title } from "../components/ui";
 import { useApp } from "../context/AppContext";
-import { colors, fonts, radius, spacing } from "../lib/theme";
+import { colors, fonts, spacing } from "../lib/theme";
 
 export default function EnterScreen() {
   const { startSession } = useApp();
-  const [name, setName] = useState("");
   const [accepted, setAccepted] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -26,7 +17,7 @@ export default function EnterScreen() {
     }
     setBusy(true);
     try {
-      await startSession(name.trim());
+      await startSession("");
       router.replace("/assess");
     } finally {
       setBusy(false);
@@ -38,25 +29,7 @@ export default function EnterScreen() {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Eyebrow>Get started</Eyebrow>
         <Title>Before we begin</Title>
-        <Body>
-          Your name stays on this phone for the session. Please confirm this is
-          risk guidance only — not a medical diagnosis.
-        </Body>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>
-            Display name <Text style={styles.optional}>(optional)</Text>
-          </Text>
-          <TextInput
-            style={styles.input}
-            value={name}
-            onChangeText={setName}
-            placeholder="e.g. Avishka"
-            placeholderTextColor={colors.muted}
-            maxLength={40}
-            autoCapitalize="words"
-          />
-        </View>
+        <Body>Please confirm this is risk guidance only — not a medical diagnosis.</Body>
 
         <View style={styles.checkRow}>
           <Switch
@@ -84,24 +57,6 @@ export default function EnterScreen() {
 
 const styles = StyleSheet.create({
   scroll: { gap: spacing.md, paddingBottom: 40 },
-  field: { gap: 8 },
-  label: {
-    color: colors.muted,
-    fontFamily: fonts.sans,
-    fontSize: 14,
-  },
-  optional: { color: colors.muted, fontFamily: fonts.sans, fontSize: 13 },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    borderRadius: radius.tight,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    backgroundColor: colors.paper2,
-    color: colors.ink,
-    fontFamily: fonts.sans,
-    fontSize: 16,
-  },
   checkRow: { flexDirection: "row", gap: spacing.sm, alignItems: "flex-start" },
   checkText: {
     flex: 1,

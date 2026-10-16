@@ -11,15 +11,67 @@ import {
   GhostButton,
   GradeTriad,
   MeterBar,
-  PipelineStrip,
   PrimaryButton,
   Screen,
 } from "../components/ui";
 import { useApp } from "../context/AppContext";
-import { fetchIngredientRecommendations, pct } from "../lib/api";
+import { pct } from "../lib/api";
 import { DECISION_LABEL } from "../lib/config";
-import type { IngredientRecommendation } from "../lib/types";
+import type { AnalyzeResponse } from "../lib/types";
 import { colors, fonts, gradeColor, radius, spacing } from "../lib/theme";
+
+function pretty(name?: string | null): string {
+  if (!name) return "";
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+function conditionView(data: AnalyzeResponse): { title: string; detail: string } {
+  const cond = data.condition;
+  const used = cond?.used || data.lesion;
+  if (!used) return { title: "Condition was not identified.", detail: "" };
+
+  const title = `Detected condition: ${pretty(used)}`;
+  const detected = cond?.detected;
+  const scoreFor = (name?: string) => {
+    if (!name || !cond?.probabilities) return null;
+    const value = cond.probabilities[name];
+    return value == null ? null : Math.round(value * 100);
+  };
+
+  if (cond?.overridden && detected && detected !== used) {
+    const score = scoreFor(detected);
+    return {
+      title,
+      detail: `You selected this type. The model estimate was ${pretty(detected)}${
+        score == null ? "" : ` (${score}%)`
+      }.`,
+    };
+  }
+
+  if (cond?.source === "model") {
+    const score = scoreFor(used);
+    const confidence =
+      score == null ? "" : `${score}% among acne, burns, rash, and warts.`;
+    const close = cond.uncertain
+      ? " The four conditions are close — confirm the type if you know it."
+      : "";
+    return {
+      title,
+      detail: confidence
+        ? `Identified by the model. ${confidence}${close}`
+        : cond.note || "Identified by the model.",
+    };
+  }
+
+  if (cond?.source === "user") {
+    return { title, detail: "This matches the type you selected." };
+  }
+
+  return {
+    title,
+    detail: cond?.note || (data.lesion ? `Lesion context: ${pretty(data.lesion)}` : ""),
+  };
+}
 
 function titleFor(decision: string, risk?: string): string {
   if (decision === "quality_reject") return "Photograph not suitable";
@@ -29,20 +81,11 @@ function titleFor(decision: string, risk?: string): string {
 }
 
 export default function ResultScreen() {
-  const { lastResult, lastPhotoUri } = useApp();
+  const { lastResult, lastPhotoUri, followSessionId } = useApp();
   const [showCam, setShowCam] = useState(true);
-  const [ingredients, setIngredients] = useState<IngredientRecommendation | null>(null);
 
   useEffect(() => {
     if (!lastResult) router.replace("/assess");
-  }, [lastResult]);
-
-  useEffect(() => {
-    if (!lastResult || lastResult.decision !== "grade" || !lastResult.risk) return;
-    const condition = lastResult.condition?.used || lastResult.lesion || "rash";
-    fetchIngredientRecommendations(condition, lastResult.risk)
-      .then(setIngredients)
-      .catch(() => setIngredients(null));
   }, [lastResult]);
 
   if (!lastResult) return null;
@@ -50,28 +93,17 @@ export default function ResultScreen() {
   const data = lastResult;
   const overlay = data.explainability?.overlay_jpeg;
   const issued = data.decision === "grade" ? data.risk : null;
-  const cond = data.condition?.used || data.lesion;
-  const kicker = data.model.loaded
-    ? data.model.kind === "keras_v5"
-      ? "Screening result · V5"
-      : "Screening result"
-    : "Quality check only";
+  const kicker = data.model.loaded ? "Results" : "Quality check only";
 
-  const conditionLine = data.condition?.used
-    ? `Detected condition: ${data.condition.used}${
-        data.condition.source === "model" ? " (identified by the model)" : " (confirmed)"
-      }. ${data.condition.note || ""}`
-    : data.lesion
-      ? `Lesion context: ${data.lesion}`
-      : "Condition was not identified.";
+  const condition = conditionView(data);
 
   const uncertain =
     data.decision === "abstain"
-      ? `Entropy ${data.entropy?.toFixed?.(2) ?? "—"}. Leading grade at ${pct(data.confidence)}, margin ${pct(data.margin)}.`
+      ? "The top two grades are close, so no single risk level is shown."
       : data.uncertain && data.risk
-        ? "The two leading grades are close. Medium is the class this dataset struggles to separate."
-        : data.risk
-          ? `Leading grade at ${pct(data.confidence)}, margin ${pct(data.margin)}.`
+        ? "The two leading grades are close."
+        : data.confidence != null && data.decision === "grade"
+          ? `Confidence ${pct(data.confidence)}.`
           : "";
 
   const ind = data.indicators;
@@ -80,10 +112,12 @@ export default function ResultScreen() {
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Eyebrow>{kicker}</Eyebrow>
-        <DecisionPill
-          label={DECISION_LABEL[data.decision] || data.decision}
-          kind={data.decision}
-        />
+        {data.decision !== "grade" ? (
+          <DecisionPill
+            label={DECISION_LABEL[data.decision] || data.decision}
+            kind={data.decision}
+          />
+        ) : null}
         <Text style={[styles.headline, { color: gradeColor(issued) }]}>
           {titleFor(data.decision, data.risk)}
         </Text>
@@ -98,19 +132,18 @@ export default function ResultScreen() {
           </View>
         ) : null}
 
-        <Text style={styles.condition}>{conditionLine}</Text>
-
-        {data.pipeline?.length ? <PipelineStrip steps={data.pipeline} /> : null}
+        <Text style={styles.condition}>{condition.title}</Text>
+        {condition.detail ? <Text style={styles.conditionDetail}>{condition.detail}</Text> : null}
 
         {data.model.loaded && data.decision !== "quality_reject" && data.decision !== "unavailable" ? (
           <Card>
-            <Text style={styles.cardTitle}>Grade probabilities</Text>
+            <Text style={styles.cardTitle}>Risk level</Text>
             <GradeTriad probabilities={data.probabilities} leading={issued} />
             {uncertain ? <Fine>{uncertain}</Fine> : null}
           </Card>
         ) : (
           <Card>
-            <Text style={styles.cardTitle}>Grade probabilities</Text>
+            <Text style={styles.cardTitle}>Risk level</Text>
             <Fine>
               {data.decision === "quality_reject"
                 ? "Risk inference was not run. The quality gate rejected this frame first."
@@ -192,36 +225,18 @@ export default function ResultScreen() {
           </Card>
         ) : null}
 
-        {data.lesion_effect?.note ? (
-          <Card>
-            <Text style={styles.cardTitle}>Lesion-context ablation</Text>
-            <Fine>{data.lesion_effect.note}</Fine>
-          </Card>
-        ) : null}
-
-        {ingredients ? (
-          <Card>
-            <Text style={styles.cardTitle}>Ingredient ideas</Text>
-            <Fine>{ingredients.note}</Fine>
-            {ingredients.ingredients.map((item) => (
-              <View key={item.name} style={styles.ingredient}>
-                <Text style={styles.ingredientName}>{item.name}</Text>
-                <Text style={styles.cardBody}>{item.benefit}</Text>
-              </View>
-            ))}
-          </Card>
-        ) : null}
-
         <View style={styles.actions}>
-          <PrimaryButton
-            label="Risk guidance dashboard"
-            onPress={() => router.push("/guidance")}
-          />
+          {data.decision === "grade" || data.decision === "abstain" ? (
+            <PrimaryButton
+              label={followSessionId ? "Save follow-up scan" : "Track skin progress"}
+              onPress={() => router.push("/track")}
+            />
+          ) : null}
+          <GhostButton label="Risk guidance dashboard" onPress={() => router.push("/guidance")} />
           <GhostButton label="Advisory report" onPress={() => router.push("/report")} />
-          <GhostButton label="New assessment" onPress={() => router.replace("/assess")} />
+          <GhostButton label="New photo" onPress={() => router.replace("/assess")} />
         </View>
-
-        <Text style={styles.disclaimer}>{data.disclaimer}</Text>
+        <Fine>{data.disclaimer}</Fine>
       </ScrollView>
     </Screen>
   );
@@ -237,10 +252,17 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
   condition: {
+    fontFamily: fonts.sansSemi,
+    color: colors.ink,
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  conditionDetail: {
     fontFamily: fonts.sans,
     color: colors.muted,
     fontSize: 15,
-    textTransform: "capitalize",
+    lineHeight: 22,
+    marginTop: -8,
   },
   alert: {
     borderRadius: radius.tight,
@@ -251,7 +273,6 @@ const styles = StyleSheet.create({
   },
   alertText: { color: colors.high, fontFamily: fonts.sans, fontSize: 15, lineHeight: 21 },
   cardTitle: { color: colors.ink, fontFamily: fonts.serifSemi, fontSize: 17 },
-  cardBody: { color: colors.muted, fontFamily: fonts.sans, lineHeight: 21, fontSize: 14 },
   step: { color: colors.muted, fontFamily: fonts.sans, lineHeight: 22, fontSize: 14 },
   flags: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   plate: {
@@ -268,16 +289,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   toggleLabel: { color: colors.muted, fontFamily: fonts.sans, fontSize: 14 },
-  ingredient: { gap: 2, marginTop: 4 },
-  ingredientName: { color: colors.sage, fontFamily: fonts.sansSemi },
   actions: { gap: spacing.sm, marginTop: 4 },
-  disclaimer: {
-    color: colors.muted,
-    fontFamily: fonts.sans,
-    fontSize: 13,
-    lineHeight: 20,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
-  },
 });

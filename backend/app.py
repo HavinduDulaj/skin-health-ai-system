@@ -157,5 +157,12 @@ async def analyze_legacy(
     return await analyze(image=image, lesion=lesion)
 
 
+class FreshStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+
 if FRONTEND_DIR.exists():
-    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+    app.mount("/", FreshStaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

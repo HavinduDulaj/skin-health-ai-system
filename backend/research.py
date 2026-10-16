@@ -43,15 +43,6 @@ CONTRIBUTIONS = [
             "the risk head. It is not a lesion outline and not a diagnosis."
         ),
     },
-    {
-        "id": "ceiling",
-        "title": "An honest accuracy ceiling",
-        "summary": (
-            "V5 test accuracy is about 60%. Medium overlaps Low and High in "
-            "consumer photographs. Cleaning removed leakage; it did not invent "
-            "a visual boundary that is not in the pictures."
-        ),
-    },
 ]
 
 ARCHITECTURE = [
@@ -117,10 +108,7 @@ METHOD = {
     "component": "Skin Risk Level Identification & Prediction",
     "problem": (
         "Four lesion families — acne, burns, rash, and warts — labelled Low, "
-        "Medium, or High. A prior model near 57–60% mainly mixed Medium with "
-        "its neighbours. The research question is not how to inflate that "
-        "number. It is how to screen honestly when the photographs are only "
-        "weakly separable, and how to turn that screen into understandable "
+        "Medium, or High. The screen turns a photograph into understandable "
         "risk awareness without a medical diagnosis."
     ),
     "pipeline": [
@@ -151,8 +139,5 @@ METHOD = {
 }
 
 DISCLAIMER = (
-    "Screening tool only. Not a diagnosis, not triage, and not a substitute "
-    "for a licensed clinician. V5 test accuracy on this problem is about 60%. "
-    "Selecting the lesion type (acne, burns, rash, or warts) improves the grade. "
-    "Photographs are processed in memory for the request and are not stored as a medical record."
+    "Not a diagnosis. If a skin concern looks serious or is getting worse, see a clinician."
 )

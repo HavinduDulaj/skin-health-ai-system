@@ -1,5 +1,5 @@
 import * as ImagePicker from "expo-image-picker";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -35,7 +35,8 @@ const TIPS = [
 ];
 
 export default function AssessScreen() {
-  const { session, setLastScreening, apiOnline } = useApp();
+  const { session, setLastScreening, apiOnline, setFollowSessionId } = useApp();
+  const { follow } = useLocalSearchParams<{ follow?: string }>();
   const [lesion, setLesion] = useState<Lesion | "">("");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -44,8 +45,9 @@ export default function AssessScreen() {
   >([]);
 
   useEffect(() => {
+    if (follow !== "1") setFollowSessionId("");
     if (!session?.accepted) router.replace("/enter");
-  }, [session]);
+  }, [session, follow, setFollowSessionId]);
 
   useEffect(() => {
     fetchSamples()
@@ -156,6 +158,20 @@ export default function AssessScreen() {
           ))}
         </View>
 
+        {busy ? (
+          <View style={styles.busy}>
+            <ActivityIndicator color={colors.sage} />
+            <Text style={styles.busyText}>Checking your photo…</Text>
+          </View>
+        ) : (
+          <>
+            <Fine>
+              {photoUri ? "Photograph ready." : "Choose a photograph to continue."}
+            </Fine>
+            <PrimaryButton label="See results" onPress={runScreening} disabled={!photoUri} />
+          </>
+        )}
+
         {samples.length > 0 ? (
           <View style={styles.samples}>
             <Text style={styles.galleryTitle}>Or try a held-out test image</Text>
@@ -177,20 +193,6 @@ export default function AssessScreen() {
             </ScrollView>
           </View>
         ) : null}
-
-        {busy ? (
-          <View style={styles.busy}>
-            <ActivityIndicator color={colors.sage} />
-            <Text style={styles.busyText}>Checking your photo…</Text>
-          </View>
-        ) : (
-          <>
-            <Fine>
-              {photoUri ? "Photograph ready." : "Choose a photograph to continue."}
-            </Fine>
-            <PrimaryButton label="See results" onPress={runScreening} disabled={!photoUri} />
-          </>
-        )}
       </ScrollView>
     </Screen>
   );

@@ -3,36 +3,28 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import {
   Body,
   Eyebrow,
-  FooterNote,
   GhostButton,
-  HeroStage,
   PrimaryButton,
   Screen,
-  StatusLamp,
   Title,
   TitleEm,
   TrustList,
 } from "../components/ui";
-import { useApp } from "../context/AppContext";
-import { API_URL } from "../lib/config";
 import { colors, fonts, spacing } from "../lib/theme";
 
-const LINKS: Array<{ label: string; href: "/guidance" | "/report" | "/history" | "/lab" }> = [
+const LINKS: Array<{
+  label: string;
+  href: "/guidance" | "/report" | "/history" | "/progress" | "/lab" | "/method";
+}> = [
   { label: "Guidance", href: "/guidance" },
   { label: "Report", href: "/report" },
+  { label: "How it works", href: "/method" },
   { label: "History", href: "/history" },
+  { label: "Progress", href: "/progress" },
   { label: "Lab", href: "/lab" },
 ];
 
 export default function HomeScreen() {
-  const { health, apiOnline } = useApp();
-
-  const lamp = apiOnline
-    ? health?.model_loaded
-      ? "Ready to screen"
-      : "Connected · quality check only"
-    : `Offline · start API at ${API_URL}`;
-
   return (
     <Screen style={styles.root}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -57,10 +49,6 @@ export default function HomeScreen() {
           items={["Quality-checked photos", "May abstain when unsure", "Not a diagnosis"]}
         />
 
-        <HeroStage />
-
-        <StatusLamp on={apiOnline} label={lamp} />
-
         <View style={styles.nav}>
           {LINKS.map((item) => (
             <Pressable key={item.href} onPress={() => router.push(item.href)}>
@@ -68,12 +56,6 @@ export default function HomeScreen() {
             </Pressable>
           ))}
         </View>
-
-        <FooterNote>
-          Derma-Safe AI · R26-IT-058 · undergraduate research. Screening only.
-          Photographs stay on this phone for the request — they are not stored as
-          a medical record.
-        </FooterNote>
       </ScrollView>
     </Screen>
   );

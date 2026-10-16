@@ -8,7 +8,6 @@ React Native + Expo + TypeScript client for the DermaSafe AI screening system.
 |---|---|
 | Mobile frontend | React Native, Expo, JavaScript/TypeScript |
 | Screening API | Python REST API (`backend/`, FastAPI) |
-| Ingredient KB | Node.js + Express + JSON |
 | AI/ML | TensorFlow, Keras, scikit-learn (Python backend) |
 | On-device storage | SQLite (`expo-sqlite`) |
 | Data exchange | JSON over HTTP |
@@ -16,8 +15,7 @@ React Native + Expo + TypeScript client for the DermaSafe AI screening system.
 ## Prerequisites
 
 1. Python screening API running on port **8000**
-2. Optional ingredient service on port **3001**
-3. [Expo Go](https://expo.dev/go) on a phone, or an Android/iOS emulator
+2. [Expo Go](https://expo.dev/go) on a phone, or an Android/iOS emulator
 
 ## Run
 
@@ -28,15 +26,7 @@ pip install -r requirements.txt
 python -m backend
 ```
 
-Terminal 2 — Node ingredient knowledge-base (optional):
-
-```bash
-cd services/ingredients
-npm install
-npm start
-```
-
-Terminal 3 — mobile app:
+Terminal 2 — mobile app:
 
 ```bash
 cd mobile
@@ -48,12 +38,9 @@ Copy `.env.example` to `.env` and set `EXPO_PUBLIC_API_URL` to your machine's LA
 
 ## Screens
 
-- **Home** — project overview and API status
-- **Session** — disclaimer + on-device profile (SQLite)
-- **Screening** — camera / gallery upload, lesion picker, analyze
-- **Result** — risk grades, Grad-CAM, ingredient suggestions
-- **Guidance / Report** — structured follow-up copy
-- **Lab / Method** — dataset integrity and research notes
-- **History** — local SQLite screening log
+- **Home** — start a screening
+- **Get started** — short non-diagnostic confirmation
+- **Photo** — camera or gallery upload, lesion type, analyze
+- **Results** — detected condition, risk level, confidence, and guidance
 
 The legacy browser UI remains in `frontend/` for demos without a phone.

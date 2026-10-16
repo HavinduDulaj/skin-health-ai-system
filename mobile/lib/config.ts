@@ -37,14 +37,7 @@ function defaultApiUrl(): string {
   return resolveServiceUrl(envUrl, 8000);
 }
 
-/** Node.js ingredient knowledge-base API */
-function defaultIngredientsUrl(): string {
-  const envUrl = Constants.expoConfig?.extra?.ingredientsUrl as string | undefined;
-  return resolveServiceUrl(envUrl, 3001);
-}
-
 export const API_URL = defaultApiUrl();
-export const INGREDIENTS_URL = defaultIngredientsUrl();
 export const PROJECT_CODE = "R26-IT-058";
 
 export const LESIONS = ["acne", "burns", "rash", "warts"] as const;

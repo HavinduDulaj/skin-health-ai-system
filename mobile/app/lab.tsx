@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Body, Card, Eyebrow, Fine, Screen, StatCell, Title } from "../components/ui";
-import { fetchLab, pct } from "../lib/api";
+import { fetchLab } from "../lib/api";
 import { colors, fonts, spacing } from "../lib/theme";
 
 function fmt(n: unknown): string {
@@ -59,7 +59,6 @@ export default function LabScreen() {
           <StatCell value={fmt(ds.final_images)} label="Images in V4" />
           <StatCell value={fmt(ds.removed)} label="Held out or removed" />
           <StatCell value={leak} label="Leakage check" />
-          <StatCell value={pct(card.v5_test_accuracy)} label="V5 test accuracy" />
         </View>
 
         <Card>
@@ -75,12 +74,8 @@ export default function LabScreen() {
         <Card>
           <Text style={styles.cardTitle}>Model card</Text>
           <Text style={styles.body}>
-            {card.architecture || "EfficientNet screening head"}. Val{" "}
-            {pct(card.v5_validation_accuracy)} · test {pct(card.v5_test_accuracy)} ·
-            macro F1 {pct(card.v5_test_macro_f1)}. V4 baseline{" "}
-            {pct(card.v4_test_accuracy_baseline)}.
+            {card.architecture || "EfficientNet screening head"}.
           </Text>
-          {card.limitation ? <Text style={styles.body}>{card.limitation}</Text> : null}
         </Card>
 
         <Card>

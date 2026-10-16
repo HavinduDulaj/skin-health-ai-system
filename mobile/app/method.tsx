@@ -50,7 +50,7 @@ export default function MethodScreen() {
         <Title>Built to be honest when the photographs are not separable.</Title>
         <Text style={styles.essay}>
           {method.problem ||
-            "A previous model sat near 57–60% test accuracy, mostly mixing Medium with Low and High. Cleaning can remove duplicates, blur, and train/test leakage. It cannot invent a visual boundary that is not in the pictures."}
+            "Four lesion families — acne, burns, rash, and warts — are labelled Low, Medium, or High. Cleaning can remove duplicates, blur, and train/test leakage. It cannot invent a visual boundary that is not in the pictures."}
         </Text>
 
         <View style={styles.steps}>
@@ -78,7 +78,10 @@ export default function MethodScreen() {
           </>
         ) : null}
 
-        {contributions.slice(0, 4).map((item) => (
+        {contributions
+          .filter((item) => !/accuracy|\d+\s*%/i.test(`${item.title} ${item.summary}`))
+          .slice(0, 4)
+          .map((item) => (
           <Card key={item.title}>
             <Text style={styles.cardTitle}>{item.title}</Text>
             <Text style={styles.body}>{item.summary}</Text>

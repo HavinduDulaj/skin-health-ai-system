@@ -8,9 +8,13 @@ const state = {
   lesion: "",
   stream: null,
   last: null,
+  followSessionId: "",
+  keepFollow: false,
 };
+window.dermaAppState = state;
 
 const views = $$("[data-view]");
+const trail = [];
 const toastEl = $("#toast");
 const DECISION_LABEL = {
   grade: "Grade issued",
@@ -18,21 +22,6 @@ const DECISION_LABEL = {
   quality_reject: "Quality reject",
   unavailable: "Head not loaded",
 };
-
-const GATED = new Set(["assess", "result", "guidance", "report"]);
-
-function readSession() {
-  try {
-    return JSON.parse(sessionStorage.getItem("dermaSession") || "null");
-  } catch {
-    return null;
-  }
-}
-
-function hasSession() {
-  const current = readSession();
-  return Boolean(current && current.accepted);
-}
 
 function toast(msg) {
   toastEl.hidden = false;
@@ -44,13 +33,11 @@ function toast(msg) {
 }
 
 function route() {
-  const name = (location.hash.replace("#/", "") || "home").split("?")[0] || "home";
-  if (GATED.has(name) && !hasSession()) {
-    location.hash = "#/enter";
-    return;
-  }
+  const raw = (location.hash.replace(/^#\/?/, "") || "home").split("?")[0];
+  const [routeName, routeArg] = raw.split("/");
+  let name = routeName || "home";
   if ((name === "result" || name === "report") && !state.last) {
-    location.hash = hasSession() ? "#/assess" : "#/enter";
+    location.hash = "#/assess";
     return;
   }
   views.forEach((view) => {
@@ -63,6 +50,17 @@ function route() {
       href === `#/${name}` || (name === "home" && href === "#/")
     );
   });
+  if (name === "assess") {
+    if (!state.keepFollow) state.followSessionId = "";
+    state.keepFollow = false;
+  }
+  const back = $("#back");
+  if (back) back.hidden = name === "home";
+  if (trail[trail.length - 1] !== name) trail.push(name);
+  if (name === "track" && window.DermaProgress) window.DermaProgress.renderTrack(state);
+  if (name === "progress" && window.DermaProgress) window.DermaProgress.renderProgress();
+  if (name === "compare" && window.DermaProgress) window.DermaProgress.renderCompare(routeArg || "");
+  if (window.DermaProgress) window.DermaProgress.checkReminders();
   if (name === "lab") loadLab();
   if (name === "method") loadMethod();
   if (name === "assess") loadGallery();
@@ -159,24 +157,61 @@ $("#btn-shutter").addEventListener("click", async () => {
 });
 
 $("#btn-analyze").addEventListener("click", analyze);
-$("#btn-print").addEventListener("click", () => window.print());
-$("#btn-print-report")?.addEventListener("click", () => window.print());
+$("#btn-track")?.addEventListener("click", () => {
+  if (!state.last) return;
+  location.hash = "#/track";
+});
+function syncCustomDate() {
+  const custom = document.querySelector("input[name=when]:checked")?.value === "custom";
+  const wrap = document.getElementById("track-custom-wrap");
+  const input = document.getElementById("track-custom");
+  const chosen = document.getElementById("track-custom-chosen");
+  if (wrap) wrap.hidden = !custom;
+  if (!input || !chosen) return;
+  const today = new Date();
+  const pad = (value) => String(value).padStart(2, "0");
+  input.min = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(input.value || "");
+  if (!custom || !match) {
+    chosen.textContent = "";
+    return;
+  }
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  chosen.textContent = date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+}
+document.getElementById("track-when")?.addEventListener("change", syncCustomDate);
+document.getElementById("track-custom")?.addEventListener("change", syncCustomDate);
+$("#track-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const button = event.target.querySelector("button[type=submit]");
+  if (button) button.disabled = true;
+  try {
+    const saved = await window.DermaProgress.saveTrackedScan(state);
+    state.followSessionId = "";
+    const permissionNote =
+      saved.reminderSaved && saved.permission === "denied"
+        ? " Reminder saved. Browser notifications are off, so the prompt will appear in the app."
+        : saved.reminderSaved
+          ? " Reminder saved."
+          : "";
+    toast(`Progress saved.${permissionNote}`);
+    location.hash = `#/compare/${saved.sessionId}`;
+  } catch (err) {
+    toast(err.message || "Could not save progress.");
+  } finally {
+    if (button) button.disabled = false;
+  }
+});
 $("#session-form")?.addEventListener("submit", (e) => {
   e.preventDefault();
   if (!$("#session-accept")?.checked) {
     toast("Please accept the non-diagnostic disclaimer to continue.");
     return;
   }
-  sessionStorage.setItem(
-    "dermaSession",
-    JSON.stringify({
-      name: ($("#session-name")?.value || "").trim(),
-      accepted: true,
-      at: Date.now(),
-    })
-  );
   location.hash = "#/assess";
 });
+$("#btn-print")?.addEventListener("click", () => window.print());
+$("#btn-print-report")?.addEventListener("click", () => window.print());
 $("#toggle-cam")?.addEventListener("change", (e) => {
   const cam = $("#result-cam");
   if (!cam || cam.hidden && !e.target.checked) return;
@@ -252,11 +287,13 @@ function renderResult(data) {
   pill.textContent = DECISION_LABEL[decision] || decision;
   pill.className = `decision-pill is-${decision === "quality_reject" ? "reject" : decision}`;
 
-  $("#result-kicker").textContent = data.model?.loaded
-    ? data.model?.kind === "keras_v5"
-      ? "Screening result · V5"
-      : "Screening result"
-    : "Quality check only";
+  $("#result-kicker").textContent = "Risk prediction";
+  const trackBtn = $("#btn-track");
+  if (trackBtn) {
+    const canTrack = data.decision === "grade" || data.decision === "abstain";
+    trackBtn.hidden = !canTrack;
+    trackBtn.textContent = state.followSessionId ? "Save follow-up scan" : "Track skin progress";
+  }
   $("#result-title").textContent = titleFor(data);
   $("#result-summary").textContent =
     data.guidance?.summary ||
@@ -278,13 +315,28 @@ function renderResult(data) {
       : "Condition was not identified.";
   $("#result-uncertain").textContent =
     decision === "abstain"
-      ? `Entropy ${data.entropy?.toFixed?.(2) ?? "—"}. Leading grade at ${pct(data.confidence)}, margin ${pct(data.margin)}.`
+      ? "The top two grades are close, so no single risk level is shown."
       : data.uncertain && data.risk
-        ? "The two leading grades are close. Medium is the class this dataset struggles to separate."
-        : data.risk
-          ? `Leading grade at ${pct(data.confidence)}, margin ${pct(data.margin)}.`
+        ? "The two leading grades are close."
+        : decision === "grade" && data.confidence != null
+          ? `Confidence ${pct(data.confidence)}.`
           : "";
-  $("#result-disclaimer").textContent = data.disclaimer || "";
+  const guidanceHost = $("#result-guidance");
+  const guidanceCopy = $("#result-guidance-copy");
+  if (guidanceHost && guidanceCopy) {
+    const guidanceText =
+      decision === "abstain"
+        ? "The top two grades are close, so no single grade is shown. Retake the photograph or see a clinician."
+        : decision === "grade" && data.risk
+          ? {
+              Low: "Minor or common appearance. Monitor with ordinary skincare. Photograph again in a few days. See a clinician if it spreads or becomes painful.",
+              Medium: "May need observation. If it persists or worsens, seek professional dermatological guidance.",
+              High: "Stronger abnormality indicators. Consult a dermatologist. This is not an emergency diagnosis and not a substitute for urgent care if symptoms escalate.",
+            }[data.risk] || ""
+          : "";
+    guidanceCopy.textContent = guidanceText;
+    guidanceHost.hidden = !guidanceText;
+  }
   $("#result-lesion").textContent = "";
 
   const ind = data.indicators;
@@ -376,11 +428,14 @@ function renderResult(data) {
   `;
 
   const effectEl = $("#lesion-effect");
-  if (data.lesion_effect?.note) {
-    effectEl.hidden = false;
-    $("#lesion-effect-note").textContent = data.lesion_effect.note;
-  } else {
-    effectEl.hidden = true;
+  if (effectEl) {
+    if (data.lesion_effect?.note) {
+      effectEl.hidden = false;
+      const note = $("#lesion-effect-note");
+      if (note) note.textContent = data.lesion_effect.note;
+    } else {
+      effectEl.hidden = true;
+    }
   }
 }
 
@@ -397,7 +452,6 @@ async function loadLab() {
       [fmt(ds.final_images), "Images in V4"],
       [fmt(ds.removed), "Held out or removed"],
       [ig.leakage === "DATA LEAKAGE CHECK: PASSED" ? "Passed" : ig.leakage || "—", "Leakage check"],
-      [pct(card.v5_test_accuracy), "V5 test accuracy"],
     ]
       .map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`)
       .join("");
@@ -408,8 +462,7 @@ async function loadLab() {
       </article>
       <article class="card">
         <h3>Model card</h3>
-        <p class="fine">${card.architecture || "EfficientNet screening head"}. Val ${pct(card.v5_validation_accuracy)} · test ${pct(card.v5_test_accuracy)} · macro F1 ${pct(card.v5_test_macro_f1)}. V4 baseline ${pct(card.v4_test_accuracy_baseline)}.</p>
-        <p class="fine">${card.limitation || ""}</p>
+        <p class="fine">${card.architecture || "EfficientNet screening head"}.</p>
       </article>
       <article class="card">
         <h3>Selective policy</h3>
@@ -457,6 +510,7 @@ async function loadMethod() {
         .join("");
     }
     host.innerHTML = (data.contributions || [])
+      .filter((item) => !/accuracy|\d+\s*%/i.test(`${item.title} ${item.summary}`))
       .map(
         (item) => `
         <article class="card">
@@ -471,18 +525,18 @@ async function loadMethod() {
   }
 }
 
-function renderGuidance() {
-  const copy = $("#guidance-latest-copy");
-  if (!copy) return;
-  const data = state.last;
-  if (!data) {
-    copy.textContent = "Run an assessment to see your latest condition, grade, and caution here.";
+function renderGuidance() {}
+
+$("#back")?.addEventListener("click", () => {
+  const current = (location.hash.replace("#/", "") || "home").split("?")[0] || "home";
+  if (trail.length > 1 && trail[trail.length - 1] === current) {
+    trail.pop();
+    const prev = trail.pop();
+    location.hash = !prev || prev === "home" ? "#/" : `#/${prev}`;
     return;
   }
-  const cond = data.condition?.used || data.lesion || "unidentified";
-  const grade = data.decision === "grade" ? `${data.risk} risk` : DECISION_LABEL[data.decision] || data.decision;
-  copy.textContent = `${cond}: ${grade}. ${data.guidance?.alert || data.guidance?.summary || ""} Confidence ${pct(data.confidence)}.`;
-}
+  location.hash = "#/";
+});
 
 function renderReport() {
   const data = state.last;
@@ -520,7 +574,6 @@ function renderReport() {
       </li>`
     )
     .join("");
-  $("#report-disclaimer").textContent = data.disclaimer || "";
   const wrap = $("#report-photo-wrap");
   if (state.previewUrl) {
     wrap.hidden = false;
@@ -628,15 +681,9 @@ async function loadGallery() {
 
 async function boot() {
   route();
-  const docs = $(".nav-api");
-  if (docs) docs.href = api("/docs");
-  const status = $("#api-status");
   try {
     const health = await fetch(api("/api/v1/health")).then((r) => r.json());
-    status.textContent = health.model_loaded
-      ? `API ${health.version} · ${health.model_kind} loaded`
-      : `API ${health.version} · quality screening only`;
-    if (!health.model_loaded) {
+    if (!health.model_loaded && $("#ready-hint")) {
       $("#ready-hint").textContent = "Quality screening will still run. Train the head to attach Low / Medium / High.";
     }
     const lab = await fetch(api("/api/v1/lab")).then((r) => r.json());
@@ -644,9 +691,7 @@ async function boot() {
       $("#trust-images").textContent = fmt(lab.dataset.final_images);
     }
   } catch {
-    status.textContent = window.DERMA_API
-      ? `Cannot reach API at ${window.DERMA_API}. Start it with python -m backend.`
-      : "API offline.";
+    /* Screening still starts from the home page when the API is up. */
   }
 }
 

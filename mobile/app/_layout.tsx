@@ -2,6 +2,7 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
+import { ReminderHost } from "../components/ReminderHost";
 import { BrandTitle } from "../components/ui";
 import { AppProvider } from "../context/AppContext";
 import { colors, fonts } from "../lib/theme";
@@ -37,6 +38,7 @@ export default function RootLayout() {
   return (
     <AppProvider>
       <StatusBar style="dark" />
+      <ReminderHost />
       <Stack screenOptions={header}>
         <Stack.Screen
           name="index"
@@ -53,6 +55,9 @@ export default function RootLayout() {
         <Stack.Screen name="lab" options={{ title: "Lab" }} />
         <Stack.Screen name="method" options={{ title: "How it works" }} />
         <Stack.Screen name="history" options={{ title: "History" }} />
+        <Stack.Screen name="progress" options={{ title: "My skin progress" }} />
+        <Stack.Screen name="track" options={{ title: "Track progress" }} />
+        <Stack.Screen name="compare" options={{ title: "Comparison" }} />
       </Stack>
     </AppProvider>
   );

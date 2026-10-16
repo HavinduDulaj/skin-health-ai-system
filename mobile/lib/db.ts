@@ -5,7 +5,7 @@ const DB_NAME = "dermasafe.db";
 
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
-async function getDb(): Promise<SQLite.SQLiteDatabase> {
+export async function getDb(): Promise<SQLite.SQLiteDatabase> {
   if (!dbPromise) {
     dbPromise = (async () => {
       const db = await SQLite.openDatabaseAsync(DB_NAME);
@@ -29,6 +29,38 @@ async function getDb(): Promise<SQLite.SQLiteDatabase> {
           accepted_at TEXT
         );
         INSERT OR IGNORE INTO user_profile (id) VALUES (1);
+        CREATE TABLE IF NOT EXISTS progress_sessions (
+          id TEXT PRIMARY KEY,
+          created_at TEXT NOT NULL,
+          body_area TEXT NOT NULL DEFAULT '',
+          notes TEXT NOT NULL DEFAULT ''
+        );
+        CREATE TABLE IF NOT EXISTS progress_scans (
+          id TEXT PRIMARY KEY,
+          session_id TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          condition TEXT,
+          risk TEXT,
+          confidence REAL,
+          decision TEXT NOT NULL,
+          body_area TEXT NOT NULL DEFAULT '',
+          notes TEXT NOT NULL DEFAULT '',
+          image_uri TEXT
+        );
+        CREATE TABLE IF NOT EXISTS progress_products (
+          id TEXT PRIMARY KEY,
+          session_id TEXT NOT NULL,
+          name TEXT NOT NULL,
+          start_date TEXT NOT NULL,
+          notes TEXT NOT NULL DEFAULT ''
+        );
+        CREATE TABLE IF NOT EXISTS progress_reminders (
+          id TEXT PRIMARY KEY,
+          session_id TEXT NOT NULL,
+          due_at TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'scheduled',
+          snooze_until TEXT
+        );
       `);
       return db;
     })();

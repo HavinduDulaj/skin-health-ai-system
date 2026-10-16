@@ -5,7 +5,6 @@
 Mobile app (recommended):
 
     python -m backend
-    cd services/ingredients && npm start   # optional ingredient KB
     cd mobile && npx expo start
 
 Legacy browser demo:

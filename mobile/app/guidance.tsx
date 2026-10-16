@@ -1,17 +1,5 @@
-import { router } from "expo-router";
 import { ScrollView, StyleSheet, Text } from "react-native";
-import {
-  Body,
-  Card,
-  Eyebrow,
-  Fine,
-  PrimaryButton,
-  Screen,
-  Title,
-} from "../components/ui";
-import { useApp } from "../context/AppContext";
-import { pct } from "../lib/api";
-import { DECISION_LABEL } from "../lib/config";
+import { Body, Card, Eyebrow, Screen, Title } from "../components/ui";
 import { colors, fonts, spacing } from "../lib/theme";
 
 const GRADES = [
@@ -34,8 +22,6 @@ const GRADES = [
 ];
 
 export default function GuidanceScreen() {
-  const { lastResult } = useApp();
-
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -52,40 +38,6 @@ export default function GuidanceScreen() {
             <Text style={styles.cardBody}>{item.copy}</Text>
           </Card>
         ))}
-
-        <Card>
-          <Text style={styles.cardTitle}>This session</Text>
-          {lastResult ? (
-            <>
-              <Text style={styles.sessionTitle}>
-                {lastResult.condition?.used || lastResult.lesion || "Skin area"}
-                {" · "}
-                {lastResult.decision === "grade"
-                  ? `${lastResult.risk} risk`
-                  : DECISION_LABEL[lastResult.decision] || lastResult.decision}
-              </Text>
-              <Text style={styles.cardBody}>
-                {lastResult.guidance?.alert || lastResult.guidance?.summary || ""}
-                {lastResult.confidence != null
-                  ? ` Confidence ${pct(lastResult.confidence)}.`
-                  : ""}
-              </Text>
-            </>
-          ) : (
-            <>
-              <Fine>
-                Run an assessment to see your latest condition, grade, and caution
-                here.
-              </Fine>
-              <PrimaryButton
-                label="Upload a photograph"
-                onPress={() => router.push("/assess")}
-              />
-            </>
-          )}
-        </Card>
-
-        {lastResult?.disclaimer ? <Fine>{lastResult.disclaimer}</Fine> : null}
       </ScrollView>
     </Screen>
   );
@@ -93,12 +45,6 @@ export default function GuidanceScreen() {
 
 const styles = StyleSheet.create({
   scroll: { gap: spacing.md, paddingBottom: 48 },
-  sessionTitle: {
-    fontFamily: fonts.serifSemi,
-    color: colors.ink,
-    fontSize: 18,
-    textTransform: "capitalize",
-  },
   cardTitle: { color: colors.ink, fontFamily: fonts.serifSemi, fontSize: 17 },
   cardBody: { color: colors.muted, fontFamily: fonts.sans, lineHeight: 22, fontSize: 14 },
 });

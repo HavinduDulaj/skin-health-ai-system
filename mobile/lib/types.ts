@@ -20,8 +20,12 @@ export interface AnalyzeResponse {
   caution?: boolean;
   lesion?: string;
   condition?: {
+    detected?: string;
     used?: string;
     source?: string;
+    overridden?: boolean;
+    uncertain?: boolean;
+    probabilities?: Record<string, number>;
     note?: string;
   };
   indicators?: {
@@ -73,11 +77,4 @@ export interface ScreeningHistoryRow {
   confidence: number | null;
   condition: string | null;
   summary: string | null;
-}
-
-export interface IngredientRecommendation {
-  condition: string;
-  risk_level: string;
-  ingredients: Array<{ name: string; benefit: string; caution?: string }>;
-  note: string;
 }
